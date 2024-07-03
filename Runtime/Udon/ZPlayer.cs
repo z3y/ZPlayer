@@ -18,6 +18,7 @@ public class ZPlayer : UdonSharpBehaviour
     void Start()
     {
         SendCustomEventDelayedFrames(nameof(LoadPlaylist), 1);
+        internals.SetVolume(volume);
     }
 
     public void LoadPlaylist()

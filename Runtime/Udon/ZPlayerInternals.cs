@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Globalization;
 using TMPro;
 using UdonSharp;
 using UnityEngine;
@@ -27,7 +26,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] TextMeshProUGUI _currentTimeText;
     [SerializeField] TextMeshProUGUI _durationText;
     [SerializeField] Slider _seekSlider;
+    [SerializeField] Slider _volumeSlider;
 
+    [SerializeField] AudioSource _audioSource;
+
+    [SerializeField] GameObject _screenObject;
 
     void Start()
     {
@@ -75,19 +78,26 @@ public class ZPlayerInternals : UdonSharpBehaviour
         Debug.Log("READY");
         float duration = _videoPlayer.GetDuration();
         _durationText.text = GetFormattedTime(duration);
+        _urlField.textComponent.text = currentUrl.ToString();
     }
 
     public override void OnVideoStart()
     {
-        Debug.Log("video start");
+        UpdateCurrentTimeUINow();
     }
 
     bool _isSeeking = false;
-    public void StartSeeking() => _isSeeking = true;
+    public void StartSeeking()
+    {
+        _isSeeking = true;
+    }
+
     void EndSeeking()
     {
-        _videoPlayer.SetTime(_videoPlayer.GetDuration() * _seekSlider.value);
+        float time = _videoPlayer.GetDuration() * _seekSlider.value;
+        _videoPlayer.SetTime(time);
         _isSeeking = false;
+        SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
     }
 
     public override void InputUse(bool value, UdonInputEventArgs args)
@@ -100,7 +110,13 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void UpdateCurrentTimeUILoop()
     {
+        UpdateCurrentTimeUINow();
+
         SendCustomEventDelayedSeconds(nameof(UpdateCurrentTimeUILoop), 1.0f);
+    }
+
+    void UpdateCurrentTimeUINow()
+    {
         if (!_videoPlayer.IsReady)
         {
             return;
@@ -111,7 +127,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         if (!_isSeeking)
         {
-            _seekSlider.value = time / _videoPlayer.GetDuration();
+            _seekSlider.SetValueWithoutNotify(time / _videoPlayer.GetDuration());
         }
     }
 
@@ -124,5 +140,40 @@ public class ZPlayerInternals : UdonSharpBehaviour
             result = result.Substring(3, result.Length-3);
         }
         return result;
+    }
+
+    float GetLogVolume()
+    {
+        float linear = _volumeSlider.value;
+        float log = LinearToLogVolume(linear);
+        return log;
+    }
+
+    public void SetVolume(float linearVolume)
+    {
+        _volumeSlider.value = linearVolume;
+    }
+    public void UpdateVolume()
+    {
+        float volume = GetLogVolume();
+        _audioSource.volume = volume;
+    }
+
+    public void DisablePostProcess()
+    {
+        bool isDefault = _screenObject.layer == 0;
+        var children = _screenObject.GetComponentsInChildren<Transform>(true);
+        int layer = isDefault ? 19 : 0;
+        _screenObject.layer = layer;
+
+        foreach (Transform child in children)
+        {
+            child.gameObject.layer = layer;
+        }
+    }
+
+    public static float LinearToLogVolume(float linearVolume, float scale = 1f)
+    {
+        return (Mathf.Pow(10, linearVolume * scale) - 1) / (Mathf.Pow(10, scale) - 1);
     }
 }

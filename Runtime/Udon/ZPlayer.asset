@@ -236,7 +236,7 @@ MonoBehaviour:
       Data: 13|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: ZPlayerInternals, Assembly-CSharp
+      Data: ZPlayerInternals, com.z3y.zplayer
     - Name: 
       Entry: 8
       Data: 
