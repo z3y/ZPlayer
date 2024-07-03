@@ -1,0 +1,16 @@
+{
+  "name": "com.z3y.zplayer",
+  "description": "A Video Player for VRChat",
+  "version": "0.0.1",
+  "unity": "2022.3",
+  "displayName": "ZPlayer",
+  "hideInEditor": false,
+  "gitDependencies": {},
+  "vpmDependencies": {},
+  "legacyFolders": {},
+  "legacyFiles": {},
+  "author": {
+    "name": "z3y",
+    "url": "https://github.com/z3y"
+  }
+}
