@@ -60,7 +60,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VideoTex:
-        m_Texture: {fileID: 8400000, guid: 95d779d6feefb7e498042aaf1e0a9412, type: 2}
+        m_Texture: {fileID: 8600000, guid: 7433f5b12a5e20148b173b4bc333a1e4, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []

@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Runtime.InteropServices;
 using TMPro;
 using UdonSharp;
 using UnityEngine;
@@ -31,12 +32,57 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] AudioSource _audioSource;
 
     [SerializeField] GameObject _screenObject;
+    [SerializeField] Animator _uiAnimator;
+
+    [SerializeField] GameObject _playButton;
+    [SerializeField] GameObject _pauseButton;
+
+    public TextMeshProUGUI _avpText;
+    public TextMeshProUGUI _ppText;
+
+    [SerializeField] CustomRenderTexture _crt;
+    [SerializeField] MeshRenderer _copyScreen;
+
+    bool _isAvPro;
+
+    Color _defaultColor = new Color(0.7254901960784313f, 0.7254901960784313f, 0.7254901960784313f);
+    Color _highlightColor = new Color(0.44313725490196076f, 0.5686274509803921f, 0.7254901960784313f);
+
 
     void Start()
     {
-        _videoPlayer = _unityPlayer;
+        SelectVideoPlayer(_isAvPro);
 
         UpdateCurrentTimeUILoop();
+    }
+
+    void SelectVideoPlayer(bool avpro)
+    {
+        _isAvPro = avpro;
+
+        if (_videoPlayer != null)
+        {
+            if (_videoPlayer.IsPlaying)
+            {
+                _videoPlayer.Stop();
+            }
+        }
+
+        if (_isAvPro)
+        {
+            _videoPlayer = _avproPlayer;
+        }
+        else
+        {
+            _videoPlayer = _unityPlayer;
+        }
+
+        HighlightText(_avpText, _isAvPro);
+    }
+
+    void HighlightText(TextMeshProUGUI text, bool highlight)
+    {
+        text.color = highlight ? _highlightColor : _defaultColor;
     }
 
 
@@ -54,7 +100,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public override void OnVideoEnd()
     {
-        Debug.Log("video end");
+        PermanentlyShowUI();
+        TogglePlayPauseButtons(false);
     }
 
     public override void OnVideoError(VRC.SDK3.Components.Video.VideoError videoError)
@@ -63,19 +110,25 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public override void OnVideoLoop()
     {
+        AllowHideUI();
+        TogglePlayPauseButtons(true);
     }
 
     public override void OnVideoPause()
     {
+        PermanentlyShowUI();
+        TogglePlayPauseButtons(false);
     }
 
     public override void OnVideoPlay()
     {
+        TogglePlayPauseButtons(true);
     }
 
     public override void OnVideoReady()
     {
-        Debug.Log("READY");
+        AllowHideUI();
+        TogglePlayPauseButtons(true);
         float duration = _videoPlayer.GetDuration();
         _durationText.text = GetFormattedTime(duration);
         _urlField.textComponent.text = currentUrl.ToString();
@@ -121,6 +174,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             return;
         }
+
+        UpdateCopyTexture();
 
         float time = _videoPlayer.GetTime();
         _currentTimeText.text = GetFormattedTime(time);
@@ -170,10 +225,76 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             child.gameObject.layer = layer;
         }
+
+        HighlightText(_ppText, !isDefault);
     }
 
-    public static float LinearToLogVolume(float linearVolume, float scale = 1f)
+    public static float LinearToLogVolume(float linearVolume, float scale = 2.0f)
     {
         return (Mathf.Pow(10, linearVolume * scale) - 1) / (Mathf.Pow(10, scale) - 1);
+    }
+
+    void PermanentlyShowUI()
+    {
+        _uiAnimator.SetBool("ForceShow", true);
+        _uiAnimator.SetTrigger("Show");
+    }
+    void AllowHideUI()
+    {
+        _uiAnimator.SetBool("ForceShow", false);
+    }
+
+
+    public void EventPlay()
+    {
+        _videoPlayer.Play();
+        TogglePlayPauseButtons(true);
+        AllowHideUI();
+    }
+
+    public void EventPause()
+    {
+        _videoPlayer.Pause();
+        TogglePlayPauseButtons(false);
+        PermanentlyShowUI();
+    }
+
+    public void EventResync()
+    {
+    }
+
+    public void EventAVProToggle()
+    {
+        SelectVideoPlayer(!_isAvPro);
+    }
+
+    void TogglePlayPauseButtons(bool isPlaying)
+    {
+        _playButton.SetActive(!isPlaying);
+        _pauseButton.SetActive(isPlaying);
+    }
+
+
+    void UpdateCopyTexture()
+    {
+        if (_copyScreen.HasPropertyBlock())
+        {
+            var mpb = new MaterialPropertyBlock();
+            _copyScreen.GetPropertyBlock(mpb);
+            var texture = mpb.GetTexture("_MainTex");
+            if (texture != null)
+            {
+                _copyScreen.sharedMaterial.SetTexture("_MainTex", texture);
+                if (_crt.height != texture.height || _crt.width != texture.width)
+                {
+                    /*_crt.Release();
+                    _crt.height = texture.height;
+                    _crt.width = texture.width;
+                    _crt.Create();*/
+                }
+
+            }
+        }
+
     }
 }
