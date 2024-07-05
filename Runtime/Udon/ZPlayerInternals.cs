@@ -47,6 +47,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] GameObject _playButton;
     [SerializeField] GameObject _pauseButton;
 
+    [SerializeField] GameObject _lockButton;
+    [SerializeField] GameObject _unlockButton;
+
     public TextMeshProUGUI _avpText;
     public TextMeshProUGUI _ppText;
 
@@ -60,8 +63,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     [UdonSynced, HideInInspector] public bool ownerPlaying = false;
     [UdonSynced, HideInInspector] public VRCUrl currentUrl;
-    [UdonSynced, HideInInspector] float ownerProgress;
-    [UdonSynced, HideInInspector] double lastSyncTime;
+    [UdonSynced, HideInInspector] public float ownerProgress;
+    [UdonSynced, HideInInspector] public double lastSyncTime;
+    [UdonSynced, HideInInspector] public bool locked;
 
     VRCUrl _localUrl;
 
@@ -155,13 +159,17 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             Seek(ownerProgress);
         }
-        
 
+        UpdateLockButtonsState();
     }
 
     public void PlayFromInputField()
     {
-        TransferOwner();
+        if (!TransferOwner())
+        {
+            return;
+        }
+
         Play(_urlField.GetUrl());
     }
 
@@ -174,11 +182,15 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     void EndSeeking()
     {
-        TransferOwner();
+        _isSeeking = false;
+
+        if (!TransferOwner())
+        {
+            return;
+        }
 
         float time = videoPlayer.GetDuration() * _seekSlider.value;
         videoPlayer.SetTime(time);
-        _isSeeking = false;
         SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
 
         ownerProgress = time;
@@ -279,7 +291,10 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventPlay()
     {
-        TransferOwner();
+        if (!TransferOwner())
+        {
+            return;
+        }
 
         videoPlayer.Play();
 
@@ -295,7 +310,10 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventPause()
     {
-        TransferOwner();
+        if (!TransferOwner())
+        {
+            return;
+        }
 
         videoPlayer.Pause();
         OnVideoActuallyPause();
@@ -305,14 +323,20 @@ public class ZPlayerInternals : UdonSharpBehaviour
         RequestSerialization();
     }
 
-    void TransferOwner()
+    bool TransferOwner()
     {
         if (IsOwner())
         {
-            return;
+            return true;
+        }
+        else if (locked)
+        {
+            return false;
         }
 
         Networking.SetOwner(Networking.LocalPlayer, gameObject);
+
+        return true;
     }
 
     bool IsOwner() => Networking.IsOwner(Networking.LocalPlayer, gameObject);
@@ -403,6 +427,36 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         Log($"Seeking to {GetFormattedTime(time)}");
         videoPlayer.SetTime(time);
+    }
+
+    public void Lock()
+    {
+        if (!TransferOwner())
+        {
+            return;
+        }
+
+        locked = true;
+        RequestSerialization();
+        UpdateLockButtonsState();
+    }
+
+    public void Unlock()
+    {
+        if (!TransferOwner())
+        {
+            return;
+        }
+
+        locked = false;
+        RequestSerialization();
+        UpdateLockButtonsState();
+    }
+
+    internal void UpdateLockButtonsState()
+    {
+        _lockButton.SetActive(locked);
+        _unlockButton.SetActive(!locked);
     }
 
     /// <summary>

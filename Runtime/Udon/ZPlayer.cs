@@ -10,7 +10,7 @@ public class ZPlayer : UdonSharpBehaviour
 
     public VRCUrl[] defaultPlaylistUrls;
     [Range(0.0f, 1.0f)] public float volume = 0.7f;
-    public bool unlocked = true;
+    public bool defaultLocked = false;
 
     public ZPlayerInternals internals;
 
@@ -22,6 +22,9 @@ public class ZPlayer : UdonSharpBehaviour
             SendCustomEventDelayedFrames(nameof(LoadPlaylist), 1);
         }
         internals.SetVolume(volume);
+
+        internals.locked = defaultLocked;
+        internals.UpdateLockButtonsState();
     }
 
     public void LoadPlaylist()
