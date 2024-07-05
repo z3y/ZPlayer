@@ -17,7 +17,10 @@ public class ZPlayer : UdonSharpBehaviour
 
     void Start()
     {
-        SendCustomEventDelayedFrames(nameof(LoadPlaylist), 1);
+        if (Networking.IsOwner(Networking.LocalPlayer, internals.gameObject))
+        {
+            SendCustomEventDelayedFrames(nameof(LoadPlaylist), 1);
+        }
         internals.SetVolume(volume);
     }
 

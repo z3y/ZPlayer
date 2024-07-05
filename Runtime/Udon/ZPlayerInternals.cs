@@ -1,6 +1,6 @@
 ﻿
 using System;
-using System.Runtime.InteropServices;
+using System.Globalization;
 using TMPro;
 using UdonSharp;
 using UnityEngine;
@@ -12,17 +12,26 @@ using VRC.SDK3.Video.Components.Base;
 using VRC.SDKBase;
 using VRC.Udon;
 using VRC.Udon.Common;
+using VRC.Udon.Common.Interfaces;
+
+
+public enum ZplayerStatus : byte
+{
+    StartVideo,
+    Sync,
+    EndVideo,
+}
+
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 public class ZPlayerInternals : UdonSharpBehaviour
 {
 
-    BaseVRCVideoPlayer _videoPlayer;
+    [HideInInspector] public BaseVRCVideoPlayer videoPlayer;
     [SerializeField] VRCUnityVideoPlayer _unityPlayer;
     [SerializeField] VRCAVProVideoPlayer _avproPlayer;
 
     [SerializeField] VRCUrlInputField _urlField;
-    public VRCUrl currentUrl;
 
     [SerializeField] TextMeshProUGUI _currentTimeText;
     [SerializeField] TextMeshProUGUI _durationText;
@@ -49,6 +58,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
     Color _defaultColor = new Color(0.7254901960784313f, 0.7254901960784313f, 0.7254901960784313f);
     Color _highlightColor = new Color(0.44313725490196076f, 0.5686274509803921f, 0.7254901960784313f);
 
+    [UdonSynced, HideInInspector] public bool ownerPlaying = false;
+    [UdonSynced, HideInInspector] public VRCUrl currentUrl;
+    [UdonSynced, HideInInspector] float ownerProgress;
+    [UdonSynced, HideInInspector] double lastSyncTime;
+
+    VRCUrl _localUrl;
 
     void Start()
     {
@@ -63,21 +78,21 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         _isAvPro = avpro;
 
-        if (_videoPlayer != null)
+        if (videoPlayer != null)
         {
-            if (_videoPlayer.IsPlaying)
+            if (videoPlayer.IsPlaying)
             {
-                _videoPlayer.Stop();
+                videoPlayer.Stop();
             }
         }
 
         if (_isAvPro)
         {
-            _videoPlayer = _avproPlayer;
+            videoPlayer = _avproPlayer;
         }
         else
         {
-            _videoPlayer = _unityPlayer;
+            videoPlayer = _unityPlayer;
         }
 
         HighlightText(_avpText, _isAvPro);
@@ -91,13 +106,62 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public void Play(VRCUrl url)
     {
         ShowLoading();
-        currentUrl = url;
-        _videoPlayer.PlayURL(url);
+        _localUrl = url;
+        videoPlayer.PlayURL(url);
+
+        if (IsOwner())
+        {
+            ownerPlaying = true;
+            currentUrl = url;
+            ownerProgress = 0;
+            RequestSerialization();
+        }
+
     }
 
+    public override void OnDeserialization()
+    {
+        bool remotePlaying = ownerPlaying;
+
+        if (currentUrl != null && (_localUrl == null || (_localUrl.ToString() != currentUrl.ToString())))
+        {
+            //Log($"Url changed from {_localUrl} to {currentUrl}");
+            Play(currentUrl);
+        }
+
+        if (remotePlaying != videoPlayer.IsPlaying)
+        {
+            if (!remotePlaying)
+            {
+                videoPlayer.Pause();
+                OnVideoActuallyPause();
+            }
+            else
+            {
+                videoPlayer.Play();
+            }
+        }
+
+        if (videoPlayer.IsPlaying)
+        {
+            const float Threshold = 5.0f;
+            float time = OwnerTimeOffset();
+            if (Mathf.Abs(time - videoPlayer.GetTime()) > Threshold)
+            {
+                Seek(time);
+            }
+        }
+        else
+        {
+            Seek(ownerProgress);
+        }
+        
+
+    }
 
     public void PlayFromInputField()
     {
+        TransferOwner();
         Play(_urlField.GetUrl());
     }
 
@@ -110,10 +174,15 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     void EndSeeking()
     {
-        float time = _videoPlayer.GetDuration() * _seekSlider.value;
-        _videoPlayer.SetTime(time);
+        TransferOwner();
+
+        float time = videoPlayer.GetDuration() * _seekSlider.value;
+        videoPlayer.SetTime(time);
         _isSeeking = false;
         SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
+
+        ownerProgress = time;
+        RequestSerialization();
     }
 
     public override void InputUse(bool value, UdonInputEventArgs args)
@@ -133,19 +202,19 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     void UpdateCurrentTimeUINow()
     {
-        if (!_videoPlayer.IsReady)
+        if (!videoPlayer.IsReady)
         {
             return;
         }
 
         UpdateCopyTexture();
 
-        float time = _videoPlayer.GetTime();
+        float time = videoPlayer.GetTime();
         _currentTimeText.text = GetFormattedTime(time);
 
         if (!_isSeeking)
         {
-            _seekSlider.SetValueWithoutNotify(time / _videoPlayer.GetDuration());
+            _seekSlider.SetValueWithoutNotify(time / videoPlayer.GetDuration());
         }
     }
 
@@ -189,7 +258,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
             child.gameObject.layer = layer;
         }
 
-        HighlightText(_ppText, !isDefault);
+        HighlightText(_ppText, isDefault);
     }
 
     public static float LinearToLogVolume(float linearVolume, float scale = 2.0f)
@@ -210,14 +279,43 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventPlay()
     {
-        _videoPlayer.Play();
+        TransferOwner();
+
+        videoPlayer.Play();
+
+        ownerPlaying = true;
+        ownerProgress = videoPlayer.GetTime();
+        RequestSerialization();
+    }
+
+    public override void OnPreSerialization()
+    {
+        lastSyncTime = Networking.GetServerTimeInSeconds();
     }
 
     public void EventPause()
     {
-        _videoPlayer.Pause();
+        TransferOwner();
+
+        videoPlayer.Pause();
         OnVideoActuallyPause();
+
+        ownerPlaying = false;
+        ownerProgress = videoPlayer.GetTime();
+        RequestSerialization();
     }
+
+    void TransferOwner()
+    {
+        if (IsOwner())
+        {
+            return;
+        }
+
+        Networking.SetOwner(Networking.LocalPlayer, gameObject);
+    }
+
+    bool IsOwner() => Networking.IsOwner(Networking.LocalPlayer, gameObject);
 
     public void EventResync()
     {
@@ -272,18 +370,39 @@ public class ZPlayerInternals : UdonSharpBehaviour
     #region Player Callbacks
 
     /// <summary>
-    /// only called once when the video is loaded
+    /// only called once when the video is loaded, but not when avpro is ready :skull:
     /// </summary>
     public override void OnVideoReady()
     {
         HideLoading();
         AllowHideUI();
         TogglePlayPauseButtons(true);
-        float duration = _videoPlayer.GetDuration();
+        float duration = videoPlayer.GetDuration();
         _durationText.text = GetFormattedTime(duration);
         _urlField.textComponent.text = currentUrl.ToString();
 
         Log($"Ready: {currentUrl}");
+
+
+        if (ownerProgress > 0)
+        {
+            float time = OwnerTimeOffset();
+            Seek(time);
+        }
+
+    }
+
+    float OwnerTimeOffset()
+    {
+        float elapsed = (float)(Networking.GetServerTimeInSeconds() - lastSyncTime);
+        float offsetTime = ownerProgress + elapsed;
+        return offsetTime;
+    }
+
+    void Seek(float time)
+    {
+        Log($"Seeking to {GetFormattedTime(time)}");
+        videoPlayer.SetTime(time);
     }
 
     /// <summary>
@@ -294,9 +413,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         Log("Start");
 
         UpdateCurrentTimeUINow();
-
-        TogglePlayPauseButtons(true);
         AllowHideUI();
+        TogglePlayPauseButtons(true);
     }
 
     /// <summary>
@@ -337,6 +455,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         TogglePlayPauseButtons(false);
         PermanentlyShowUI();
+        ownerPlaying = false;
     }
 
     /// <summary>
