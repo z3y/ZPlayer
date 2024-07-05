@@ -37,6 +37,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] TextMeshProUGUI _durationText;
     [SerializeField] Slider _seekSlider;
     [SerializeField] Slider _volumeSlider;
+    [SerializeField] TextMeshProUGUI _volumeText;
 
     [SerializeField] AudioSource _audioSource;
 
@@ -68,6 +69,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [UdonSynced, HideInInspector] public bool locked;
 
     VRCUrl _localUrl;
+
+
 
     void Start()
     {
@@ -170,7 +173,21 @@ public class ZPlayerInternals : UdonSharpBehaviour
             return;
         }
 
-        Play(_urlField.GetUrl());
+        var url = _urlField.GetUrl();
+        string urlStr = url.ToString();
+
+        if (string.IsNullOrEmpty(urlStr))
+        {
+            return;
+        }
+
+        if (urlStr.Length > 1000)
+        {
+            Log($"URL too long: {urlStr.Length}");
+            return;
+        }
+
+        Play(url);
     }
 
 
@@ -256,6 +273,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         float volume = GetLogVolume();
         _audioSource.volume = volume;
+
+        _volumeText.text = ((int)(_volumeSlider.value * 100.0f)).ToString();
     }
 
     public void DisablePostProcess()
@@ -391,31 +410,6 @@ public class ZPlayerInternals : UdonSharpBehaviour
     }
 
 
-    #region Player Callbacks
-
-    /// <summary>
-    /// only called once when the video is loaded, but not when avpro is ready :skull:
-    /// </summary>
-    public override void OnVideoReady()
-    {
-        HideLoading();
-        AllowHideUI();
-        TogglePlayPauseButtons(true);
-        float duration = videoPlayer.GetDuration();
-        _durationText.text = GetFormattedTime(duration);
-        _urlField.textComponent.text = currentUrl.ToString();
-
-        Log($"Ready: {currentUrl}");
-
-
-        if (ownerProgress > 0)
-        {
-            float time = OwnerTimeOffset();
-            Seek(time);
-        }
-
-    }
-
     float OwnerTimeOffset()
     {
         float elapsed = (float)(Networking.GetServerTimeInSeconds() - lastSyncTime);
@@ -457,6 +451,31 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         _lockButton.SetActive(locked);
         _unlockButton.SetActive(!locked);
+    }
+
+    #region Player Callbacks
+
+    /// <summary>
+    /// only called once when the video is loaded, but not when avpro is ready :skull:
+    /// </summary>
+    public override void OnVideoReady()
+    {
+        HideLoading();
+        AllowHideUI();
+        TogglePlayPauseButtons(true);
+        float duration = videoPlayer.GetDuration();
+        _durationText.text = GetFormattedTime(duration);
+        _urlField.textComponent.text = currentUrl.ToString();
+
+        Log($"Ready: {currentUrl}");
+
+
+        if (ownerProgress > 0)
+        {
+            float time = OwnerTimeOffset();
+            Seek(time);
+        }
+
     }
 
     /// <summary>
