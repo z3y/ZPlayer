@@ -33,6 +33,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     [SerializeField] GameObject _screenObject;
     [SerializeField] Animator _uiAnimator;
+    [SerializeField] Animator _loadingAnimator;
 
     [SerializeField] GameObject _playButton;
     [SerializeField] GameObject _pauseButton;
@@ -55,6 +56,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         UpdateCurrentTimeUILoop();
     }
+
+    void Log(string text) => Debug.Log($"[ZPlayer] {text}");
 
     void SelectVideoPlayer(bool avpro)
     {
@@ -85,9 +88,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
         text.color = highlight ? _highlightColor : _defaultColor;
     }
 
-
     public void Play(VRCUrl url)
     {
+        ShowLoading();
         currentUrl = url;
         _videoPlayer.PlayURL(url);
     }
@@ -98,46 +101,6 @@ public class ZPlayerInternals : UdonSharpBehaviour
         Play(_urlField.GetUrl());
     }
 
-    public override void OnVideoEnd()
-    {
-        PermanentlyShowUI();
-        TogglePlayPauseButtons(false);
-    }
-
-    public override void OnVideoError(VRC.SDK3.Components.Video.VideoError videoError)
-    {
-    }
-
-    public override void OnVideoLoop()
-    {
-        AllowHideUI();
-        TogglePlayPauseButtons(true);
-    }
-
-    public override void OnVideoPause()
-    {
-        PermanentlyShowUI();
-        TogglePlayPauseButtons(false);
-    }
-
-    public override void OnVideoPlay()
-    {
-        TogglePlayPauseButtons(true);
-    }
-
-    public override void OnVideoReady()
-    {
-        AllowHideUI();
-        TogglePlayPauseButtons(true);
-        float duration = _videoPlayer.GetDuration();
-        _durationText.text = GetFormattedTime(duration);
-        _urlField.textComponent.text = currentUrl.ToString();
-    }
-
-    public override void OnVideoStart()
-    {
-        UpdateCurrentTimeUINow();
-    }
 
     bool _isSeeking = false;
     public void StartSeeking()
@@ -248,15 +211,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public void EventPlay()
     {
         _videoPlayer.Play();
-        TogglePlayPauseButtons(true);
-        AllowHideUI();
     }
 
     public void EventPause()
     {
         _videoPlayer.Pause();
-        TogglePlayPauseButtons(false);
-        PermanentlyShowUI();
+        OnVideoActuallyPause();
     }
 
     public void EventResync()
@@ -297,4 +257,96 @@ public class ZPlayerInternals : UdonSharpBehaviour
         }
 
     }
+
+    void ShowLoading()
+    {
+        _loadingAnimator.SetTrigger("Show");
+    }
+
+    void HideLoading()
+    {
+        _loadingAnimator.SetTrigger("Hide");
+    }
+
+
+    #region Player Callbacks
+
+    /// <summary>
+    /// only called once when the video is loaded
+    /// </summary>
+    public override void OnVideoReady()
+    {
+        HideLoading();
+        AllowHideUI();
+        TogglePlayPauseButtons(true);
+        float duration = _videoPlayer.GetDuration();
+        _durationText.text = GetFormattedTime(duration);
+        _urlField.textComponent.text = currentUrl.ToString();
+
+        Log($"Ready: {currentUrl}");
+    }
+
+    /// <summary>
+    /// Called when the video is starting and after unpausing
+    /// </summary>
+    public override void OnVideoStart()
+    {
+        Log("Start");
+
+        UpdateCurrentTimeUINow();
+
+        TogglePlayPauseButtons(true);
+        AllowHideUI();
+    }
+
+    /// <summary>
+    /// Called after the video ends, but not when it loops
+    /// </summary>
+    public override void OnVideoEnd()
+    {
+        PermanentlyShowUI();
+        TogglePlayPauseButtons(false);
+
+        Log("End");
+
+    }
+
+    public override void OnVideoError(VRC.SDK3.Components.Video.VideoError videoError)
+    {
+        HideLoading();
+
+        Log("Error" + videoError.ToString());
+    }
+
+    /// <summary>
+    /// Never seems to get called
+    /// </summary>
+    public override void OnVideoPlay() {}
+
+    /// <summary>
+    /// Never seems to get called
+    /// </summary>
+    public override void OnVideoPause() {}
+
+    /// <summary>
+    /// Manually called when the player pauses
+    /// </summary>
+    public void OnVideoActuallyPause()
+    {
+        Log("Pause");
+
+        TogglePlayPauseButtons(false);
+        PermanentlyShowUI();
+    }
+
+    /// <summary>
+    /// Called when the video ends but when loop is enabled
+    /// </summary>
+    public override void OnVideoLoop()
+    {
+        AllowHideUI();
+        TogglePlayPauseButtons(true);
+    }
+
+    #endregion
 }
