@@ -70,6 +70,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     VRCUrl _localUrl;
 
+    [SerializeField] TextMeshProUGUI _logText;
+    [SerializeField] TextMeshProUGUI _ownerNameText;
 
 
     void Start()
@@ -77,6 +79,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         SelectVideoPlayer(_isAvPro);
 
         UpdateCurrentTimeUILoop();
+
+        UpdateOwnerText();
     }
 
     void Log(string text) => Debug.Log($"[ZPlayer] {text}");
@@ -115,6 +119,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         ShowLoading();
         _localUrl = url;
         videoPlayer.PlayURL(url);
+        LogUI(url.ToString());
+        _urlField.SetUrl(url);
 
         if (IsOwner())
         {
@@ -164,6 +170,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         }
 
         UpdateLockButtonsState();
+        UpdateOwnerText();
     }
 
     public void PlayFromInputField()
@@ -453,6 +460,21 @@ public class ZPlayerInternals : UdonSharpBehaviour
         _unlockButton.SetActive(!locked);
     }
 
+    void LogUI(string text)
+    {
+        _logText.text = text;
+    }
+
+    void UpdateOwnerText()
+    {
+        var player = Networking.GetOwner(gameObject);
+        if (player == null)
+        {
+            return;
+        }
+        _ownerNameText.text = player.displayName;
+    }
+
     #region Player Callbacks
 
     /// <summary>
@@ -488,6 +510,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         UpdateCurrentTimeUINow();
         AllowHideUI();
         TogglePlayPauseButtons(true);
+
     }
 
     /// <summary>
@@ -500,13 +523,16 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         Log("End");
 
+        LogUI("URL");
     }
 
     public override void OnVideoError(VRC.SDK3.Components.Video.VideoError videoError)
     {
         HideLoading();
 
-        Log("Error" + videoError.ToString());
+        string err = "VideoError: " + videoError.ToString();
+        Log(err);
+        LogUI(err);
     }
 
     /// <summary>
