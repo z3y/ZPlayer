@@ -231,7 +231,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         float time = videoPlayer.GetDuration() * _seekSlider.value;
         videoPlayer.SetTime(time);
-        SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
+        UpdateCurrentTimeUINow(time);
 
         ownerProgress = time;
         RequestSerialization();
@@ -247,30 +247,35 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void UpdateCurrentTimeUILoop()
     {
-        if (videoPlayer.IsPlaying)
-        {
-            UpdateCurrentTimeUINow();
-        }
+        UpdateCurrentTimeUINow();
 
         SendCustomEventDelayedSeconds(nameof(UpdateCurrentTimeUILoop), 1.0f);
     }
 
-    void UpdateCurrentTimeUINow()
+    void UpdateCurrentTimeUINow(float overrideTime = -1)
     {
+        if (!videoPlayer.IsPlaying && overrideTime < 0)
+        {
+            return;
+        }
 
-        UpdateCopyTexture();
-
-        float time = videoPlayer.GetTime();
+        float time = overrideTime >= 0 ? overrideTime : videoPlayer.GetTime();
         _currentTimeText.text = GetFormattedTime(time);
 
         if (!_isSeeking)
         {
-            _seekSlider.SetValueWithoutNotify(time / videoPlayer.GetDuration());
+            float sliderValue = time / videoPlayer.GetDuration();
+            sliderValue = Mathf.Clamp(sliderValue, 0f, 1f);
+            _seekSlider.SetValueWithoutNotify(sliderValue);
         }
     }
 
     string GetFormattedTime(float seconds)
     {
+        if (seconds <= 0)
+        {
+            return "0:00";
+        }
         var time = TimeSpan.FromSeconds(seconds);
         var result = ((int)time.TotalHours).ToString("D2") + time.ToString(@"\:mm\:ss");
         if (result.StartsWith("00:"))
@@ -446,6 +451,10 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     float OwnerTimeOffset()
     {
+        if (!ownerPlaying)
+        {
+            return ownerProgress;
+        }
         float elapsed = (float)(Networking.GetServerTimeInSeconds() - lastSyncTime);
         float offsetTime = ownerProgress + elapsed;
         return offsetTime;
@@ -524,6 +533,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             float time = OwnerTimeOffset();
             Seek(time);
+            UpdateCurrentTimeUINow(time);
         }
 
         if (!ownerPlaying)
@@ -532,7 +542,6 @@ public class ZPlayerInternals : UdonSharpBehaviour
             OnVideoActuallyPause();
         }
 
-        SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
     }
 
     /// <summary>
@@ -541,8 +550,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public override void OnVideoStart()
     {
         Log("Start");
+        UpdateCopyTexture();
         UpdateSharedMaterial();
-        UpdateCurrentTimeUINow();
         AllowHideUI();
         TogglePlayPauseButtons(true);
 
@@ -551,6 +560,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
             _isAvProStarting = false;
             OnVideoReady();
         }
+
+        SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
     }
 
     /// <summary>
