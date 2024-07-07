@@ -57,7 +57,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] CustomRenderTexture _crt;
     [SerializeField] MeshRenderer _copyScreen;
 
-    bool _isAvPro;
+    bool _isAvProLocal;
+    bool _isAvProStarting;
+
 
     Color _defaultColor = new Color(0.7254901960784313f, 0.7254901960784313f, 0.7254901960784313f);
     Color _highlightColor = new Color(0.44313725490196076f, 0.5686274509803921f, 0.7254901960784313f);
@@ -67,17 +69,18 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [UdonSynced, HideInInspector] public float ownerProgress;
     [UdonSynced, HideInInspector] public double lastSyncTime;
     [UdonSynced, HideInInspector] public bool locked;
+    [UdonSynced, HideInInspector] public bool isAvPro;
 
     VRCUrl _localUrl;
 
     [SerializeField] TextMeshProUGUI _logText;
     [SerializeField] TextMeshProUGUI _ownerNameText;
 
-    [SerializeField] Material[] _sharedMaterials;
+    [SerializeField] Material _copyMaterial;
 
     void Start()
     {
-        SelectVideoPlayer(_isAvPro);
+        SelectVideoPlayer(_isAvProLocal);
 
         UpdateCurrentTimeUILoop();
 
@@ -88,17 +91,15 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     void SelectVideoPlayer(bool avpro)
     {
-        _isAvPro = avpro;
+        _isAvProLocal = avpro;
+        isAvPro = avpro;
 
         if (videoPlayer != null)
         {
-            if (videoPlayer.IsPlaying)
-            {
-                videoPlayer.Stop();
-            }
+            videoPlayer.Stop();
         }
 
-        if (_isAvPro)
+        if (avpro)
         {
             videoPlayer = _avproPlayer;
         }
@@ -107,12 +108,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
             videoPlayer = _unityPlayer;
         }
 
-        for (int i = 0; i < _sharedMaterials.Length; i++)
-        {
-            _sharedMaterials[i].SetFloat("_IsAVProInput", _isAvPro ? 1 : 0);
-        }
+        UpdateSharedMaterial();
 
-        HighlightText(_avpText, _isAvPro);
+        HighlightText(_avpText, _isAvProLocal);
     }
 
     void HighlightText(TextMeshProUGUI text, bool highlight)
@@ -124,9 +122,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         ShowLoading();
         _localUrl = url;
+        _isAvProStarting = _isAvProLocal;
         videoPlayer.PlayURL(url);
         LogUI(url.ToString());
         _urlField.SetUrl(url);
+
 
         if (IsOwner())
         {
@@ -141,6 +141,16 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public override void OnDeserialization()
     {
         bool remotePlaying = ownerPlaying;
+
+        if (isAvPro != _isAvProLocal)
+        {
+            if (videoPlayer.IsPlaying)
+            {
+                currentUrl = null;
+                _localUrl = null;
+            }
+            SelectVideoPlayer(isAvPro);
+        }
 
         if (currentUrl != null && (_localUrl == null || (_localUrl.ToString() != currentUrl.ToString())))
         {
@@ -237,17 +247,16 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void UpdateCurrentTimeUILoop()
     {
-        UpdateCurrentTimeUINow();
+        if (videoPlayer.IsPlaying)
+        {
+            UpdateCurrentTimeUINow();
+        }
 
         SendCustomEventDelayedSeconds(nameof(UpdateCurrentTimeUILoop), 1.0f);
     }
 
     void UpdateCurrentTimeUINow()
     {
-        if (!videoPlayer.IsReady)
-        {
-            return;
-        }
 
         UpdateCopyTexture();
 
@@ -379,7 +388,13 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventAVProToggle()
     {
-        SelectVideoPlayer(!_isAvPro);
+        if (!TransferOwner())
+        {
+            return;
+        }
+
+        SelectVideoPlayer(!_isAvProLocal);
+        RequestSerialization();
     }
 
     void TogglePlayPauseButtons(bool isPlaying)
@@ -420,6 +435,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
     void HideLoading()
     {
         _loadingAnimator.SetTrigger("Hide");
+    }
+
+    void UpdateSharedMaterial()
+    {
+        _copyMaterial.SetFloat("_IsAVProInput", _isAvProLocal ? 1 : 0);
+        _copyMaterial.SetVector("_Resolution", new Vector2(videoPlayer.VideoWidth, videoPlayer.VideoHeight));
     }
 
 
@@ -498,12 +519,20 @@ public class ZPlayerInternals : UdonSharpBehaviour
         Log($"Ready: {currentUrl}");
 
 
+
         if (ownerProgress > 0)
         {
             float time = OwnerTimeOffset();
             Seek(time);
         }
 
+        if (!ownerPlaying)
+        {
+            videoPlayer.Pause();
+            OnVideoActuallyPause();
+        }
+
+        SendCustomEventDelayedFrames(nameof(UpdateCurrentTimeUINow), 1);
     }
 
     /// <summary>
@@ -512,11 +541,16 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public override void OnVideoStart()
     {
         Log("Start");
-
+        UpdateSharedMaterial();
         UpdateCurrentTimeUINow();
         AllowHideUI();
         TogglePlayPauseButtons(true);
 
+        if (_isAvProLocal && _isAvProStarting)
+        {
+            _isAvProStarting = false;
+            OnVideoReady();
+        }
     }
 
     /// <summary>

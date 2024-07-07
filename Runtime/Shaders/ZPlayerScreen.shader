@@ -4,10 +4,9 @@ Shader "Unlit/ZPlayerScreen"
     {
         _MainTex ("Texture", 2D) = "white" {}
 
-        _MetaPassEmissiveBoost("Meta Pass Emissive Boost", Float) = 1.0
-        _TargetAspectRatio("Target Aspect Ratio", Float) = 1.7777777
-        [ToggleUI]_IsAVProInput("Is AV Pro Input", Int) = 0
-        [ToggleUI]_Transparent("Transparent", Int) = 0
+        //_MetaPassEmissiveBoost("Meta Pass Emissive Boost", Float) = 1.0
+
+        [ToggleUI]_Transparent("Transparent Border", Int) = 1
     }
     SubShader
     {
@@ -55,61 +54,14 @@ Shader "Unlit/ZPlayerScreen"
             float4 _MainTex_TexelSize;
             float _IsAVProInput;
             float _TargetAspectRatio;
+            half _Transparent;
             #define _EmissionColor float3(1, 1, 1)
 
             half4 VideoEmission(float2 uv)
             {
-                float2 emissionRes = _MainTex_TexelSize.zw;
-
-
-                float currentAspectRatio = emissionRes.x / emissionRes.y;
-
-                float visibility = 1.0;
-
-                // If the aspect ratio does not match the target ratio, then we fit the UVs to maintain the aspect ratio while fitting the range 0-1
-                if (abs(currentAspectRatio - _TargetAspectRatio) > 0.001)
-                {
-                    float2 normalizedVideoRes = float2(emissionRes.x / _TargetAspectRatio, emissionRes.y);
-                    float2 correctiveScale;
-                    
-                    // Find which axis is greater, we will clamp to that
-                    if (normalizedVideoRes.x > normalizedVideoRes.y)
-                        correctiveScale = float2(1, normalizedVideoRes.y / normalizedVideoRes.x);
-                    else
-                        correctiveScale = float2(normalizedVideoRes.x / normalizedVideoRes.y, 1);
-
-                    uv = ((uv - 0.5) / correctiveScale) + 0.5;
-                    uv = (uv - 0.01) * 1.02;
-
-                    // Antialiasing on UV clipping
-                    float2 uvPadding = (1 / emissionRes) * 0.1;
-                    float2 uvfwidth = fwidth(uv.xy);
-                    float2 maxFactor = smoothstep(uvfwidth + uvPadding + 1, uvPadding + 1, uv.xy);
-                    float2 minFactor = smoothstep(-uvfwidth - uvPadding, -uvPadding, uv.xy);
-
-                    visibility = maxFactor.x * maxFactor.y * minFactor.x * minFactor.y;
-
-                    //if (any(uv <= 0) || any(uv >= 1))
-                    //    return float3(0, 0, 0);
-                }
-
-                #if UNITY_UV_STARTS_AT_TOP
-                if (_IsAVProInput)
-                {
-                    uv = float2(uv.x, 1 - uv.y);
-                }
-                #endif
-                
-                float3 texColor = UNITY_SAMPLE_TEX2D(_MainTex, uv).rgb;
-
-            #ifndef UNITY_COLORSPACE_GAMMA
-                if (_IsAVProInput)
-                {
-                    texColor = pow(texColor, 2.2f);
-                }
-            #endif
-
-                return half4(texColor * _EmissionColor.rgb, visibility);
+                float4 tex = UNITY_SAMPLE_TEX2D(_MainTex, uv);
+                tex.rgb *= _EmissionColor.rgb;
+                return tex;
             }
 
             v2f vert (appdata v)
@@ -130,7 +82,8 @@ Shader "Unlit/ZPlayerScreen"
             {
                 half4 col = VideoEmission(i.uv);
                 UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
+                half alpha = _Transparent ? col.a : 1;
+                return half4(col.rgb, alpha);
             }
             ENDCG
         }

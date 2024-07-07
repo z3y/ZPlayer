@@ -167,13 +167,6 @@ Shader "Unlit/ZPlayerUIBlur"
                 uv.y -= 1.89;
                 UVScaleCenter(uv, float2(0.46, 0.8));
 
-                #if UNITY_UV_STARTS_AT_TOP
-                if (_IsAVProInput)
-                {
-                    uv = float2(uv.x, 1 - uv.y);
-                }
-                #endif
-
 
                 float2 Radius = 0.01;
                 // float2 Radius = 0.0;
@@ -192,14 +185,6 @@ Shader "Unlit/ZPlayerUIBlur"
                 
                 // Output to screen
                 videoTex /= Quality * Directions - 15.0;
-                
-                #ifndef UNITY_COLORSPACE_GAMMA
-                if (_IsAVProInput)
-                {
-                    videoTex = pow(videoTex, 2.2f);
-                }
-                #endif
-
                 videoTex *= 0.15;
 
                 // half4 video = _VideoTex.SampleLevel(sampler_VideoTex, , 5) * 0.25;

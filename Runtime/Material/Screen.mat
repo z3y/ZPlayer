@@ -123,7 +123,7 @@ Material:
     - _Speed: 1
     - _SrcBlend: 1
     - _TargetAspectRatio: 1.7777777
-    - _Transparent: 0
+    - _Transparent: 1
     - _UVSec: 0
     - _ZTest: 4
     - _ZWrite: 1

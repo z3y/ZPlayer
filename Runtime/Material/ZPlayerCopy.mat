@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AVProCopy
+  m_Name: ZPlayerCopy
   m_Shader: {fileID: 4800000, guid: 6931d7a409d815144b0b58676f64d9eb, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

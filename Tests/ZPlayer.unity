@@ -270,11 +270,10 @@ MonoBehaviour:
   ownerProgress: 0
   lastSyncTime: 0
   locked: 0
+  isAvPro: 0
   _logText: {fileID: 685641241}
   _ownerNameText: {fileID: 1819007801}
-  _sharedMaterials:
-  - {fileID: 2100000, guid: f80d598c08710d946a9539929f0764e4, type: 2}
-  - {fileID: 2100000, guid: 9206d0a6efac67e47a297bfe39b54b78, type: 2}
+  _copyMaterial: {fileID: 2100000, guid: 9994f2c0cb3900840975cc71576a22ee, type: 2}
 --- !u!114 &215223542
 MonoBehaviour:
   m_ObjectHideFlags: 2
@@ -618,7 +617,7 @@ PrefabInstance:
     - target: {fileID: 1055321711490392694, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: blueprintId
-      value: wrld_829195fc-8224-41db-97ad-cf973bfeb4f2
+      value: wrld_8c5cf1ce-e2da-4c69-bb69-2e75fce31a4a
       objectReference: {fileID: 0}
     - target: {fileID: 1094421957795580606, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -1758,8 +1757,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22
-  m_fontSizeBase: 22
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -5478,8 +5477,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22
-  m_fontSizeBase: 22
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
