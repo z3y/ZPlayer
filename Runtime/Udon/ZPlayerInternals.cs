@@ -121,11 +121,16 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void Play(VRCUrl url)
     {
+        if (videoPlayer != null && videoPlayer.IsPlaying)
+        {
+            videoPlayer.Stop();
+        }
+
         ShowLoading();
         _localUrl = url;
         _isAvProStarting = _isAvProLocal;
-        videoPlayer.PlayURL(url);
         LogUI(url.ToString());
+        videoPlayer.PlayURL(url);
         _urlField.SetUrl(url);
 
 
@@ -157,10 +162,6 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             //Log($"Url changed from {_localUrl} to {currentUrl}");
             Play(currentUrl);
-        } else if (_lastError == VideoError.RateLimited)
-        {
-            Play(currentUrl);
-            _lastError = VideoError.Unknown;
         }
 
         if (remotePlaying != videoPlayer.IsPlaying)
@@ -580,7 +581,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         PermanentlyShowUI();
         TogglePlayPauseButtons(false);
 
-        Log("End");
+        Log("Video End");
 
         LogUI("URL");
     }
@@ -592,6 +593,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         string err = "VideoError: " + videoError.ToString();
         Log(err);
         LogUI(err);
+
     }
 
     /// <summary>
