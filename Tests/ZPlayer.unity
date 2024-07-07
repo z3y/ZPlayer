@@ -272,6 +272,9 @@ MonoBehaviour:
   locked: 0
   _logText: {fileID: 685641241}
   _ownerNameText: {fileID: 1819007801}
+  _sharedMaterials:
+  - {fileID: 2100000, guid: f80d598c08710d946a9539929f0764e4, type: 2}
+  - {fileID: 2100000, guid: 9206d0a6efac67e47a297bfe39b54b78, type: 2}
 --- !u!114 &215223542
 MonoBehaviour:
   m_ObjectHideFlags: 2
@@ -615,7 +618,7 @@ PrefabInstance:
     - target: {fileID: 1055321711490392694, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
       propertyPath: blueprintId
-      value: wrld_8d6e85ee-92da-4ff3-9894-b919a1b8a900
+      value: wrld_829195fc-8224-41db-97ad-cf973bfeb4f2
       objectReference: {fileID: 0}
     - target: {fileID: 1094421957795580606, guid: 8894fa7e4588a5c4fab98453e558847d,
         type: 3}
@@ -3629,7 +3632,7 @@ MonoBehaviour:
   defaultPlaylistUrls:
   - url: http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
   volume: 0.7
-  defaultLocked: 1
+  defaultLocked: 0
   internals: {fileID: 215223541}
 --- !u!1 &1245995599
 GameObject:
@@ -4922,7 +4925,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Player
+  m_text: Local Player
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9f8eb626f7a90864f90d54c00cf1a59c, type: 2}
   m_sharedMaterial: {fileID: -7927841763912719055, guid: 9f8eb626f7a90864f90d54c00cf1a59c,

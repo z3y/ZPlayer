@@ -73,6 +73,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] TextMeshProUGUI _logText;
     [SerializeField] TextMeshProUGUI _ownerNameText;
 
+    [SerializeField] Material[] _sharedMaterials;
 
     void Start()
     {
@@ -104,6 +105,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
         else
         {
             videoPlayer = _unityPlayer;
+        }
+
+        for (int i = 0; i < _sharedMaterials.Length; i++)
+        {
+            _sharedMaterials[i].SetFloat("_IsAVProInput", _isAvPro ? 1 : 0);
         }
 
         HighlightText(_avpText, _isAvPro);

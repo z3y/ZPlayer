@@ -90,6 +90,7 @@ Shader "Unlit/ZPlayerUIBlur"
             float _UIMaskSoftnessX;
             float _UIMaskSoftnessY;
             int _UIVertexColorAlwaysGammaSpace;
+            float _IsAVProInput;
 
             v2f vert(appdata_t v)
             {
@@ -128,6 +129,7 @@ Shader "Unlit/ZPlayerUIBlur"
                 UV += 0.5 * Scale;
             }
 
+
             fixed4 frag(v2f IN) : SV_Target
             {
                 //Round up the alpha color coming from the interpolator (to 1.0/256.0 steps)
@@ -157,12 +159,21 @@ Shader "Unlit/ZPlayerUIBlur"
                 float Size = 5.0; // BLUR SIZE (Radius)
                 uint lod = 3;
 
-                float2 uv = IN.texcoord;
 
+                float2 uv = IN.texcoord;
+                
                 // align uv
                 uv.y *= 0.55;
                 uv.y -= 1.89;
                 UVScaleCenter(uv, float2(0.46, 0.8));
+
+                #if UNITY_UV_STARTS_AT_TOP
+                if (_IsAVProInput)
+                {
+                    uv = float2(uv.x, 1 - uv.y);
+                }
+                #endif
+
 
                 float2 Radius = 0.01;
                 // float2 Radius = 0.0;
@@ -181,8 +192,15 @@ Shader "Unlit/ZPlayerUIBlur"
                 
                 // Output to screen
                 videoTex /= Quality * Directions - 15.0;
-                videoTex *= 0.15;
+                
+                #ifndef UNITY_COLORSPACE_GAMMA
+                if (_IsAVProInput)
+                {
+                    videoTex = pow(videoTex, 2.2f);
+                }
+                #endif
 
+                videoTex *= 0.15;
 
                 // half4 video = _VideoTex.SampleLevel(sampler_VideoTex, , 5) * 0.25;
                 color.rgb += videoTex.rgb * color.a;
