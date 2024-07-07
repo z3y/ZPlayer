@@ -109,6 +109,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         }
 
         UpdateSharedMaterial();
+        HideLoading();
 
         HighlightText(_avpText, _isAvProLocal);
     }
@@ -156,6 +157,10 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             //Log($"Url changed from {_localUrl} to {currentUrl}");
             Play(currentUrl);
+        } else if (_lastError == VideoError.RateLimited)
+        {
+            Play(currentUrl);
+            _lastError = VideoError.Unknown;
         }
 
         if (remotePlaying != videoPlayer.IsPlaying)
@@ -264,18 +269,21 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         if (!_isSeeking)
         {
-            float sliderValue = time / videoPlayer.GetDuration();
-            sliderValue = Mathf.Clamp(sliderValue, 0f, 1f);
+            float duration = videoPlayer.GetDuration();
+            duration = Mathf.Max(duration, 0.001f);
+            float sliderValue = time / duration;
+            sliderValue = Mathf.Clamp01(sliderValue);
             _seekSlider.SetValueWithoutNotify(sliderValue);
         }
     }
 
     string GetFormattedTime(float seconds)
     {
-        if (seconds <= 0)
+        if (seconds <= 0 || seconds == float.NaN || seconds == float.MaxValue)
         {
             return "0:00";
         }
+
         var time = TimeSpan.FromSeconds(seconds);
         var result = ((int)time.TotalHours).ToString("D2") + time.ToString(@"\:mm\:ss");
         if (result.StartsWith("00:"))
