@@ -4,4 +4,5 @@
 - [x] Blur behind ui with video texture
 - [ ] switching to and from avp while playing the same url might not sync
 - [x] random triangle appearing in the video texture on quest wtf
-- [ ] implement retry on fail
+- [x] implement retry on fail
+- [ ] ltcgi looks funny

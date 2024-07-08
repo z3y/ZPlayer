@@ -78,6 +78,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     [SerializeField] Material _copyMaterial;
 
+    [SerializeField] Animator _seekTimeAnimator;
+
     int _retryCount = 0;
 
     void Start()
@@ -202,6 +204,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         if (!TransferOwner())
         {
+            LogUI($"Player Locked");
             return;
         }
 
@@ -224,14 +227,28 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
 
     bool _isSeeking = false;
+    bool _justEndedSeeking = false;
+    float _seekDurationTempMultiplier = 1.0f;
+    [SerializeField] TextMeshProUGUI _seekTimeDurationPreview;
     public void StartSeeking()
     {
-        _isSeeking = true;
+        if (!_isSeeking)
+        {
+            _isSeeking = true;
+            _seekTimeAnimator.SetTrigger("Show");
+            if (videoPlayer.IsPlaying)
+            {
+                _seekDurationTempMultiplier = videoPlayer.GetDuration();
+            }
+        }
+
+        _seekTimeDurationPreview.text = GetFormattedTime(_seekDurationTempMultiplier * _seekSlider.value);
     }
 
     void EndSeeking()
     {
         _isSeeking = false;
+        _seekTimeAnimator.SetTrigger("Hide");
 
         if (!TransferOwner())
         {
@@ -241,6 +258,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         float time = videoPlayer.GetDuration() * _seekSlider.value;
         videoPlayer.SetTime(time);
         UpdateCurrentTimeUINow(time);
+        _justEndedSeeking = true;
 
         ownerProgress = time;
         RequestSerialization();
@@ -265,6 +283,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         if (!videoPlayer.IsPlaying && overrideTime < 0)
         {
+            return;
+        }
+
+        if (_justEndedSeeking)
+        {
+            _justEndedSeeking = false;
             return;
         }
 
@@ -597,11 +621,17 @@ public class ZPlayerInternals : UdonSharpBehaviour
         string err = "VideoError: " + videoError.ToString();
         Log(err);
 
+        if (videoError == VRC.SDK3.Components.Video.VideoError.AccessDenied && _localUrl != null && _localUrl.ToString().StartsWith("https://"))
+        {
+            LogUI(err + $" - Enable Untrusted URLs");
+            return;
+        }
+
         if (_retryCount < 3 && _localUrl != null)
         {
             _retryCount++;
-            LogUI(err + $", Retrying {_retryCount}");
-            SendCustomEventDelayedSeconds(nameof(RetryCurrentUrl), 2);
+            LogUI(err + $" - Retrying {_retryCount}");
+            SendCustomEventDelayedSeconds(nameof(RetryCurrentUrl), 3);
         }
         else
         {
@@ -613,7 +643,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void RetryCurrentUrl()
     {
-        if (_localUrl != null)
+        if (_localUrl != null && !videoPlayer.IsPlaying)
         {
             Play(currentUrl);
         }
