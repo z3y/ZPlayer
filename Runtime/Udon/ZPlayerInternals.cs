@@ -86,7 +86,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     void Start()
     {
+
+#if !UNITY_EDITOR
         _isAvProLocal = isDefaultAVPro;
+#endif
+
         SelectVideoPlayer(_isAvProLocal);
 
         UpdateCurrentTimeUILoop();
@@ -387,6 +391,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void DisablePostProcess()
     {
+#if !UNITY_EDITOR
         bool isDefault = _screenObject.layer == 0;
         var children = _screenObject.GetComponentsInChildren<Transform>(true);
         int layer = isDefault ? 19 : 0;
@@ -398,6 +403,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         }
 
         HighlightImage(_ppImage, isDefault);
+#endif
+
     }
 
     public static float LinearToLogVolume(float linearVolume, float scale = 2.0f)
