@@ -52,7 +52,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] GameObject _unlockButton;
 
     public TextMeshProUGUI _avpText;
-    public TextMeshProUGUI _ppText;
+    public Image _ppImage;
 
     [SerializeField] CustomRenderTexture _crt;
     [SerializeField] MeshRenderer _copyScreen;
@@ -121,6 +121,10 @@ public class ZPlayerInternals : UdonSharpBehaviour
     void HighlightText(TextMeshProUGUI text, bool highlight)
     {
         text.color = highlight ? _highlightColor : _defaultColor;
+    }
+    void HighlightImage(Image image, bool highlight)
+    {
+        image.color = highlight ? _highlightColor : _defaultColor;
     }
 
     public void Play(VRCUrl url)
@@ -368,7 +372,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
             child.gameObject.layer = layer;
         }
 
-        HighlightText(_ppText, isDefault);
+        HighlightImage(_ppImage, isDefault);
     }
 
     public static float LinearToLogVolume(float linearVolume, float scale = 2.0f)
