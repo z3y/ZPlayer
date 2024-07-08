@@ -352,11 +352,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     string GetFormattedTime(float seconds)
     {
-        if (seconds <= 0 || seconds == float.NaN || seconds == float.MaxValue)
+        if (seconds <= 0 || seconds == float.NaN || seconds == float.MaxValue || float.IsInfinity(seconds))
         {
             return "0:00";
         }
 
+        Debug.Log(seconds.ToString("R"));
         var time = TimeSpan.FromSeconds(seconds);
         var result = ((int)time.TotalHours).ToString("D2") + time.ToString(@"\:mm\:ss");
         if (result.StartsWith("00:"))
@@ -614,6 +615,19 @@ public class ZPlayerInternals : UdonSharpBehaviour
         _ownerNameText.text = player.displayName;
     }
 
+    bool IsRTSPStream(string urlStr, bool isAvPro)
+    {
+        return isAvPro && videoPlayer.GetDuration() == 0f && IsRTSPURL(urlStr);
+    }
+
+    bool IsRTSPURL(string urlStr)
+    {
+        return urlStr.StartsWith("rtsp://", System.StringComparison.OrdinalIgnoreCase) ||
+               urlStr.StartsWith("rtmp://", System.StringComparison.OrdinalIgnoreCase) || // RTMP isn't really supported in VRC's context and it's probably never going to be, but we'll just be safe here
+               urlStr.StartsWith("rtspt://", System.StringComparison.OrdinalIgnoreCase) || // rtsp over TCP
+               urlStr.StartsWith("rtspu://", System.StringComparison.OrdinalIgnoreCase); // rtsp over UDP
+    }
+
     #region Player Callbacks
 
     /// <summary>
@@ -677,6 +691,15 @@ public class ZPlayerInternals : UdonSharpBehaviour
     /// </summary>
     public override void OnVideoEnd()
     {
+        if (currentUrl != null)
+        {
+            if (IsRTSPStream(currentUrl.ToString(), isAvPro))
+            {
+                return;
+            }
+        }
+
+
         PermanentlyShowUI();
         //TogglePlayPauseButtons(false);
 
