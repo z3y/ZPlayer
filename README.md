@@ -3,3 +3,4 @@
 - [ ] add meta pass emission mult
 - [ ] loop
 - [x] make stream work
+- [ ] video aspect not set right away

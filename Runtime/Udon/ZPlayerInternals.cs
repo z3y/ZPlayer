@@ -344,6 +344,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
         float time = overrideTime >= 0 ? overrideTime : videoPlayer.GetTime();
         _currentTimeText.text = GetFormattedTime(time);
 
+        if (videoPlayer.IsPlaying)
+        {
+            UpdateSharedMaterial();
+        }
+
         if (!_isSeeking)
         {
             float duration = videoPlayer.GetDuration();
@@ -650,7 +655,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         Log($"Ready: {currentUrl}");
 
-
+        SendCustomEventDelayedFrames(nameof(UpdateSharedMaterial), 1);
 
         if (ownerProgress > 0)
         {
