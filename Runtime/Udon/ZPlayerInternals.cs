@@ -272,6 +272,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         float time = videoPlayer.GetDuration() * _seekSlider.value;
         videoPlayer.SetTime(time);
+        _skipNextUIUpdate = false;
         UpdateCurrentTimeUINow(time);
         _skipNextUIUpdate = true;
 
