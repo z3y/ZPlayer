@@ -137,6 +137,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         ShowLoading();
         _localUrl = url;
         _isAvProStarting = _isAvProLocal;
+        _copyMaterial.SetFloat("_IsAVProInput", _isAvProLocal ? 1 : 0);
         LogUI(url.ToString());
         videoPlayer.PlayURL(url);
         _urlField.SetUrl(url);
@@ -164,6 +165,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
                 _localUrl = null;
             }
             SelectVideoPlayer(isAvPro);
+        }
+
+        if (currentUrl == null)
+        {
+            videoPlayer.Stop();
         }
 
         bool justStarted = false;
@@ -216,6 +222,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
         UpdateLockButtonsState();
         UpdateOwnerText();
 
+        if (_requestedResync)
+        {
+            HideLoading();
+            _requestedResync = false;
+        }
 
     }
 
@@ -445,6 +456,26 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventResync()
     {
+        if (!IsOwner())
+        {
+            SendCustomNetworkEvent(NetworkEventTarget.Owner, nameof(RequestResync));
+            _requestedResync = true;
+            ShowLoading();
+        }
+        else
+        {
+            RequestResync();
+        }
+    }
+
+    bool _requestedResync = false;
+    public void RequestResync()
+    {
+        if (videoPlayer.IsPlaying)
+        {
+            ownerProgress = videoPlayer.GetTime();
+        }
+        RequestSerialization();
     }
 
     public void EventAVProToggle()

@@ -5,4 +5,5 @@
 - [x] switching to and from avp while playing the same url might not sync
 - [x] random triangle appearing in the video texture on quest wtf
 - [x] implement retry on fail
-- [ ] ltcgi looks funny
+- [ ] add meta pass emission mult
+- [ ] handle when not playing
