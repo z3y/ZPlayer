@@ -1,6 +1,12 @@
+A work in progress video player for VRChat
+
 # Features
-- [ ] Shader for play/pause and lerp between the shape
-- [ ] add meta pass emission mult
-- [ ] loop
-- [x] make stream work
-- [ ] video aspect not set right away
+
+- One render texture for unity and avpro players for easy integration
+- Modern UI
+- 
+
+# Todo
+- [ ] video loop toggle
+- [ ] playlist
+- [ ] add meta pass emission multiplier
