@@ -78,6 +78,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     [SerializeField] Material _copyMaterial;
 
+    int _retryCount = 0;
+
     void Start()
     {
         SelectVideoPlayer(_isAvProLocal);
@@ -161,6 +163,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         if (currentUrl != null && (_localUrl == null || (_localUrl.ToString() != currentUrl.ToString())))
         {
             //Log($"Url changed from {_localUrl} to {currentUrl}");
+            _retryCount = 0;
             Play(currentUrl);
         }
 
@@ -563,6 +566,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         UpdateSharedMaterial();
         AllowHideUI();
         TogglePlayPauseButtons(true);
+        _retryCount = 0;
 
         if (_isAvProLocal && _isAvProStarting)
         {
@@ -592,8 +596,27 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         string err = "VideoError: " + videoError.ToString();
         Log(err);
-        LogUI(err);
 
+        if (_retryCount < 3 && _localUrl != null)
+        {
+            _retryCount++;
+            LogUI(err + $", Retrying {_retryCount}");
+            SendCustomEventDelayedSeconds(nameof(RetryCurrentUrl), 2);
+        }
+        else
+        {
+            _retryCount = 0;
+            _localUrl = null;
+            LogUI(err);
+        }
+    }
+
+    public void RetryCurrentUrl()
+    {
+        if (_localUrl != null)
+        {
+            Play(currentUrl);
+        }
     }
 
     /// <summary>
