@@ -22,7 +22,6 @@ public class ZPlayer : UdonSharpBehaviour
             SendCustomEventDelayedFrames(nameof(LoadPlaylist), 1);
         }
         internals.SetVolume(volume);
-
         internals.locked = defaultLocked;
         internals.UpdateLockButtonsState();
     }

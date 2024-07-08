@@ -71,6 +71,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [UdonSynced, HideInInspector] public bool locked;
     [UdonSynced, HideInInspector] public bool isAvPro;
 
+    [SerializeField] bool isDefaultAVPro = true;
+
     VRCUrl _localUrl;
 
     [SerializeField] TextMeshProUGUI _logText;
@@ -84,6 +86,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     void Start()
     {
+        _isAvProLocal = isDefaultAVPro;
         SelectVideoPlayer(_isAvProLocal);
 
         UpdateCurrentTimeUILoop();
@@ -129,7 +132,18 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void Play(VRCUrl url)
     {
-        if (videoPlayer != null && videoPlayer.IsPlaying)
+        if (url == null)
+        {
+            return;
+        }
+
+        string urlStr = url.ToString();
+        if (string.IsNullOrEmpty(urlStr))
+        {
+            return;
+        }
+
+        if (videoPlayer.IsPlaying)
         {
             videoPlayer.Stop();
         }
@@ -138,7 +152,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         _localUrl = url;
         _isAvProStarting = _isAvProLocal;
         _copyMaterial.SetFloat("_IsAVProInput", _isAvProLocal ? 1 : 0);
-        LogUI(url.ToString());
+        LogUI(urlStr);
         videoPlayer.PlayURL(url);
         _urlField.SetUrl(url);
 
@@ -475,6 +489,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             ownerProgress = videoPlayer.GetTime();
         }
+        Log("Requested Resync");
         RequestSerialization();
     }
 
@@ -663,11 +678,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public override void OnVideoEnd()
     {
         PermanentlyShowUI();
-        TogglePlayPauseButtons(false);
+        //TogglePlayPauseButtons(false);
 
         Log("Video End");
 
         LogUI("URL");
+        UpdateCurrentTimeUINow(0);
     }
 
     public override void OnVideoError(VRC.SDK3.Components.Video.VideoError videoError)

@@ -6,4 +6,6 @@
 - [x] random triangle appearing in the video texture on quest wtf
 - [x] implement retry on fail
 - [ ] add meta pass emission mult
-- [ ] handle when not playing
+- [x] handle when not playing
+- [ ] make playlist work
+- [ ] loop
