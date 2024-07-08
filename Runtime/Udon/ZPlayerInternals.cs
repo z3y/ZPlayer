@@ -162,11 +162,13 @@ public class ZPlayerInternals : UdonSharpBehaviour
             SelectVideoPlayer(isAvPro);
         }
 
+        bool justStarted = false;
         if (currentUrl != null && (_localUrl == null || (_localUrl.ToString() != currentUrl.ToString())))
         {
             //Log($"Url changed from {_localUrl} to {currentUrl}");
             _retryCount = 0;
             Play(currentUrl);
+            justStarted = true;
         }
 
         if (remotePlaying != videoPlayer.IsPlaying)
@@ -189,15 +191,28 @@ public class ZPlayerInternals : UdonSharpBehaviour
             if (Mathf.Abs(time - videoPlayer.GetTime()) > Threshold)
             {
                 Seek(time);
+                _skipNextUIUpdate = false;
+                UpdateCurrentTimeUINow(time);
+                _skipNextUIUpdate = true;
             }
         }
         else
         {
             Seek(ownerProgress);
+
+            if (!justStarted)
+            {
+                _skipNextUIUpdate = false;
+                UpdateCurrentTimeUINow(ownerProgress);
+                _skipNextUIUpdate = true;
+            }
+
         }
 
         UpdateLockButtonsState();
         UpdateOwnerText();
+
+
     }
 
     public void PlayFromInputField()
@@ -227,7 +242,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
 
     bool _isSeeking = false;
-    bool _justEndedSeeking = false;
+    bool _skipNextUIUpdate = false;
     float _seekDurationTempMultiplier = 1.0f;
     [SerializeField] TextMeshProUGUI _seekTimeDurationPreview;
     public void StartSeeking()
@@ -258,7 +273,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         float time = videoPlayer.GetDuration() * _seekSlider.value;
         videoPlayer.SetTime(time);
         UpdateCurrentTimeUINow(time);
-        _justEndedSeeking = true;
+        _skipNextUIUpdate = true;
 
         ownerProgress = time;
         RequestSerialization();
@@ -286,9 +301,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
             return;
         }
 
-        if (_justEndedSeeking)
+        if (_skipNextUIUpdate)
         {
-            _justEndedSeeking = false;
+            _skipNextUIUpdate = false;
             return;
         }
 
@@ -435,6 +450,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         }
 
         SelectVideoPlayer(!_isAvProLocal);
+        currentUrl = null;
         RequestSerialization();
     }
 
@@ -569,7 +585,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
         {
             float time = OwnerTimeOffset();
             Seek(time);
+            _skipNextUIUpdate = false;
             UpdateCurrentTimeUINow(time);
+            _skipNextUIUpdate = true;
         }
 
         if (!ownerPlaying)
@@ -591,6 +609,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         AllowHideUI();
         TogglePlayPauseButtons(true);
         _retryCount = 0;
+
+        _seekDurationTempMultiplier = videoPlayer.GetDuration();
 
         if (_isAvProLocal && _isAvProStarting)
         {

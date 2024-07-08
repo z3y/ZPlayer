@@ -2202,13 +2202,13 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: _justEndedSeeking
+      Data: _skipNextUIUpdate
     - Name: $v
       Entry: 7
       Data: 131|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
     - Name: <Name>k__BackingField
       Entry: 1
-      Data: _justEndedSeeking
+      Data: _skipNextUIUpdate
     - Name: <UserType>k__BackingField
       Entry: 9
       Data: 75
