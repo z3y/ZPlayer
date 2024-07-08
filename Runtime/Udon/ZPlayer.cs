@@ -8,7 +8,7 @@ using VRC.Udon;
 public class ZPlayer : UdonSharpBehaviour
 {
 
-    public VRCUrl[] defaultPlaylistUrls;
+    public VRCUrl defaultUrl;
     [Range(0.0f, 1.0f)] public float volume = 0.7f;
     public bool defaultLocked = false;
 
@@ -19,19 +19,15 @@ public class ZPlayer : UdonSharpBehaviour
     {
         if (Networking.IsOwner(Networking.LocalPlayer, internals.gameObject))
         {
-            SendCustomEventDelayedFrames(nameof(LoadPlaylist), 1);
+            SendCustomEventDelayedFrames(nameof(PlayDefaultUrl), 1);
         }
         internals.SetVolume(volume);
         internals.locked = defaultLocked;
         internals.UpdateLockButtonsState();
     }
 
-    public void LoadPlaylist()
+    public void PlayDefaultUrl()
     {
-        for (int i = 0; i < defaultPlaylistUrls.Length; i++)
-        {
-            var url = defaultPlaylistUrls[i];
-            internals.Play(url);
-        }
+        internals.Play(defaultUrl);
     }
 }

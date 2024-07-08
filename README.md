@@ -9,3 +9,4 @@
 - [x] handle when not playing
 - [ ] make playlist work
 - [ ] loop
+- [ ] make stream work

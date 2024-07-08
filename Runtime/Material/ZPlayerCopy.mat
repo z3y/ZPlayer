@@ -106,7 +106,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _IsAVProInput: 0
+    - _IsAVProInput: 1
     - _LIGHTMAPPED_SPECULAR: 0
     - _LTCGI: 0
     - _LTCGI_DIFFUSE_OFF: 0
