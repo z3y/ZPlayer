@@ -11,25 +11,11 @@ Shader "Unlit/ZPlayerCopy"
         Pass
         {
             CGPROGRAM
-            #pragma vertex vert
+            #pragma vertex CustomRenderTextureVertexShader
             #pragma fragment frag
 
             #include "UnityCG.cginc"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
+            #include "UnityCustomRenderTexture.cginc"
 
             UNITY_DECLARE_TEX2D(_MainTex);
             float4 _MainTex_TexelSize;
@@ -37,25 +23,11 @@ Shader "Unlit/ZPlayerCopy"
             float2 _Resolution;
             #define _TargetAspectRatio float(1.7777777)
 
-            v2f vert (appdata v)
-            {
-                v2f o;
-                UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_INITIALIZE_OUTPUT(v2f, o);
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = v.uv;
-
-                UNITY_TRANSFER_FOG(o,o.vertex);
-                return o;
-            }
-
-            half4 frag (v2f i) : SV_Target
+            half4 frag (v2f_customrendertexture i) : SV_Target
             {
                 //float2 emissionRes = _MainTex_TexelSize.zw;
                 float2 emissionRes = _Resolution;
-                float2 uv = i.uv;
+                float2 uv = i.localTexcoord.xy;
 
 
                 float currentAspectRatio = emissionRes.x / emissionRes.y;
