@@ -3061,7 +3061,7 @@ MonoBehaviour:
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 2016041323431841688}
   defaultUrl:
-    url: http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
+    url: https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
   volume: 0.7
   defaultLocked: 0
   internals: {fileID: 667922061170036680}
