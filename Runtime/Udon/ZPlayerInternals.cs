@@ -84,18 +84,20 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     int _retryCount = 0;
 
+
     void Start()
     {
 
 #if !UNITY_EDITOR
         _isAvProLocal = isDefaultAVPro;
 #endif
-
         SelectVideoPlayer(_isAvProLocal);
 
         UpdateCurrentTimeUILoop();
 
         UpdateOwnerText();
+
+        SendCustomEventDelayedFrames(nameof(_InitLtcToggle), 1);
     }
 
     void Log(string text) => Debug.Log($"[ZPlayer] {text}");
@@ -787,6 +789,41 @@ public class ZPlayerInternals : UdonSharpBehaviour
     }
 
     #endregion
+
+
+    [SerializeField] TextMeshProUGUI _ltcText;
+#if LTCGI_INCLUDED
+    [SerializeField] LTCGI_UdonAdapter _optionalLtcgiAdapter;
+#endif
+
+#if LTCGI_INCLUDED && !UNITY_ANDROID
+    public void ToggleLtc()
+    {
+        bool ltcgiEnabled = !_optionalLtcgiAdapter._GetGlobalState();
+        _optionalLtcgiAdapter._SetGlobalState(ltcgiEnabled);
+        HighlightText(_ltcText, ltcgiEnabled);
+    }
+    public void _InitLtcToggle()
+    {
+        if (_optionalLtcgiAdapter != null)
+        {
+            _ltcText.gameObject.SetActive(true);
+            HighlightText(_ltcText, _optionalLtcgiAdapter._GetGlobalState());
+        }
+        else
+        {
+            _ltcText.gameObject.SetActive(false);
+        }
+    }
+#else
+    public void ToggleLtc()
+    {
+    }
+    public void _InitLtcToggle()
+    {
+        _ltcgiButton.gameObject.SetActive(false);
+    }
+#endif
 }
 
 // a lot taken from udonsharp video player in order to not solve already solved problems
