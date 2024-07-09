@@ -102,6 +102,7 @@ Material:
     - _EmissionToggle: 1
     - _EnableFlipBook: 0
     - _EnablePixelMap: 0
+    - _Exact: 1
     - _GEOMETRICSPECULAR_AA: 0
     - _GlossMapScale: 1
     - _Glossiness: 0

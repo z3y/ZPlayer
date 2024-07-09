@@ -76,9 +76,13 @@ Shader "Unlit/ZPlayerCopy"
                 #ifndef UNITY_COLORSPACE_GAMMA
                     if (_IsAVProInput)
                     {
-                        texColor = pow(texColor, 2.2f);
+                        texColor.r = GammaToLinearSpaceExact(texColor.r);
+                        texColor.g = GammaToLinearSpaceExact(texColor.g);
+                        texColor.b = GammaToLinearSpaceExact(texColor.b);
                     }
                 #endif
+
+                texColor = saturate(texColor);
 
                 return float4(texColor * visibility, visibility);
             }

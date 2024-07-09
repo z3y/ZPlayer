@@ -5,7 +5,8 @@ A work in progress video player for VRChat
 - Modern UI
 - Disable Post Processing toggle
 - No black bars
-- One render texture for unity and avpro players for easy integration
+- One render texture for unity and AVPro players for easy integration
+- Accurate color conversion for AVPro
 
 # Todo
 - [ ] video loop toggle
