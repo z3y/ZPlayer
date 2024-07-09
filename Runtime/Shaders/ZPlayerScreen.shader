@@ -50,7 +50,8 @@ Shader "Unlit/ZPlayerScreen"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            UNITY_DECLARE_TEX2D(_MainTex);
+            sampler2D _MainTex;
+
             float4 _MainTex_TexelSize;
             float _IsAVProInput;
             float _TargetAspectRatio;
@@ -59,9 +60,28 @@ Shader "Unlit/ZPlayerScreen"
 
             half4 VideoEmission(float2 uv)
             {
-                float4 tex = UNITY_SAMPLE_TEX2D(_MainTex, uv);
-                tex.rgb *= _EmissionColor.rgb;
-                return tex;
+                //https://bgolus.medium.com/sharper-mipmapping-using-shader-based-supersampling-ed7aadb47bec
+                // per pixel partial derivatives
+                float2 dx = ddx(uv.xy);
+                float2 dy = ddy(uv.xy);
+                // rotated grid uv offsets
+                float2 uvOffsets = float2(0.125, 0.375);
+                float bias = -1.0;
+                float4 offsetUV = float4(0.0, 0.0, 0.0, bias);
+                // supersampled using 2x2 rotated grid
+                half4 col = 0;
+                offsetUV.xy = uv.xy + uvOffsets.x * dx + uvOffsets.y * dy;
+                col += tex2Dbias(_MainTex, offsetUV);
+                offsetUV.xy = uv.xy - uvOffsets.x * dx - uvOffsets.y * dy;
+                col += tex2Dbias(_MainTex, offsetUV);
+                offsetUV.xy = uv.xy + uvOffsets.y * dx - uvOffsets.x * dy;
+                col += tex2Dbias(_MainTex, offsetUV);
+                offsetUV.xy = uv.xy - uvOffsets.y * dx + uvOffsets.x * dy;
+                col += tex2Dbias(_MainTex, offsetUV);
+                col *= 0.25;
+
+                col.rgb *= _EmissionColor.rgb;
+                return col;
             }
 
             v2f vert (appdata v)
