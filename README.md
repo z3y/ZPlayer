@@ -11,6 +11,5 @@ A work in progress video player for VRChat
 - [ ] video loop toggle
 - [ ] playlist
 - [ ] add meta pass emission multiplier
-- [ ] make it obvious that controls appear on hover
 
 ![Preview](/Image~/Unity_lxj4VbQ3Gz.jpg)
