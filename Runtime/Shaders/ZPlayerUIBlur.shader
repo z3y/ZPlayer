@@ -164,7 +164,7 @@ Shader "Unlit/ZPlayerUIBlur"
                 
                 // align uv
                 uv.y *= 0.55;
-                uv.y -= 1.89;
+                uv.y -= 1.72;
                 UVScaleCenter(uv, float2(0.42, 0.8));
 
 
