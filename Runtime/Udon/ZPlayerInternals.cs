@@ -252,7 +252,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void PlayFromInputField()
     {
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             LogUI($"Player Locked");
             return;
@@ -300,7 +300,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         _isSeeking = false;
         _seekTimeAnimator.SetTrigger("Hide");
 
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             return;
         }
@@ -432,7 +432,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventPlay()
     {
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             return;
         }
@@ -451,7 +451,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventPause()
     {
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             return;
         }
@@ -464,13 +464,13 @@ public class ZPlayerInternals : UdonSharpBehaviour
         RequestSerialization();
     }
 
-    bool TransferOwner()
+    bool TryTransferOwnernership()
     {
         if (IsOwner())
         {
             return true;
         }
-        else if (locked)
+        else if (locked && !Networking.IsMaster)
         {
             return false;
         }
@@ -509,7 +509,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void EventAVProToggle()
     {
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             return;
         }
@@ -585,7 +585,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void Lock()
     {
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             return;
         }
@@ -597,7 +597,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     public void Unlock()
     {
-        if (!TransferOwner())
+        if (!TryTransferOwnernership())
         {
             return;
         }
@@ -821,7 +821,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     }
     public void _InitLtcToggle()
     {
-        _ltcgiButton.gameObject.SetActive(false);
+        _ltcText.gameObject.SetActive(false);
     }
 #endif
 }
