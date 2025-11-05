@@ -109,52 +109,31 @@ Shader "Unlit/ZPlayer/UI Screen"
                     correctiveScale = float2(normalizedVideoRes.x / normalizedVideoRes.y, 1);
 
                 canvasSize = _CanvasSize.xy * correctiveScale * float2(_TargetAspectRatio, 1);
-                // uv -= 0.5;
-                // uv.x *= aspect;
-                // uv.x *= _TargetAspectRatio * ;
-                // canvasSize.x *= _TargetAspectRatio;
-                // uv += 0.5;
 
                 uv = ((uv - 0.5) / correctiveScale) + 0.5;
             }
 
             half4 frag(v2f IN) : SV_Target
             {
-                // float2 uv = IN.texcoord.xy;
-                // float aspect = texelSize.x / texelSize.y;
-                // float2 normalizedVideoRes = float2(texelSize.y / _TargetAspectRatio, texelSize.x);
-                // float2 correctiveScale;
-                    
-                    // // Find which axis is greater, we will clamp to that
-                    // if (normalizedVideoRes.x > normalizedVideoRes.y)
-                    //     correctiveScale = float2(1, normalizedVideoRes.y / normalizedVideoRes.x);
-                    // else
-                    //     correctiveScale = float2(normalizedVideoRes.x / normalizedVideoRes.y, 1);
-
-                    // // uv = ((uv - 0.5) / correctiveScale) + 0.5;
-
-
                 float2 rectSize;
-
-                // uv -= 0.5;
-                // uv.x *= aspect;
-                // uv.x *= _TargetAspectRatio;
-                // rectSize.x *= _TargetAspectRatio;
-                // uv += 0.5;
-
                 ApplyVideoTexture(IN.texcoord.xy, rectSize);
                 ApplyVideoTexture(IN.texcoordCentroid.xy, rectSize);
 
                 IN.rectSize.xy = rectSize;
                 IN.texcoord.zw = (IN.texcoord.xy - 0.5) * rectSize;
-half4 mainTexture = tex2D(_MainTex, IN.texcoord.xy);
-// return mainTexture;
+                half4 mainTexture = SuperSample(_MainTex, _MainTex_TexelSize, IN.texcoordCentroid.xy, IN.texcoord.xy);
 
-                half4 color = ApplyUI(IN);
+                float dist = sdRoundedBox(IN.texcoord.zw * 2.0, rectSize, _Radius);
+                float aa = fwidth(dist) * sqrt(2.0);
+                float outer = smoothstep(0.0, aa, -dist);
+
+                half4 color = mainTexture;
 
                 color.r = GammaToLinearSpaceExact(color.r);
                 color.g = GammaToLinearSpaceExact(color.g);
                 color.b = GammaToLinearSpaceExact(color.b);
+
+                color *= outer;
 
                 return color;
             }
