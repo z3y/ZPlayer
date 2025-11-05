@@ -34,7 +34,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints:
-    - _BlurMip: 2
+    - _AlphaPremultiplied: 0
+    - _BlurMip: 3
     - _BorderEnabled: 1
     - _EdgeAA: 1
     - _Glass: 1
@@ -58,8 +59,8 @@ Material:
     - _TargetAspectRatio: 1.7777777
     - _UseUIAlphaClip: 0
     m_Colors:
-    - _BackgroundColor: {r: 0.496451, g: 0.53167033, b: 0.551, a: 1}
-    - _BorderColor: {r: 0.65882355, g: 0.65882355, b: 0.65882355, a: 1}
+    - _BackgroundColor: {r: 0.5529412, g: 0.5529412, b: 0.5529412, a: 1}
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0.32941177}
     - _CanvasSize: {r: 1920, g: 1080, b: 0, a: -452}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
