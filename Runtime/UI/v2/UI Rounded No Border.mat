@@ -59,7 +59,7 @@ Material:
     - _UseUIAlphaClip: 0
     m_Colors:
     - _BackgroundColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BorderColor: {r: 1, g: 1, b: 1, a: 0.32941177}
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0.2}
     - _CanvasSize: {r: 1920, g: 1080, b: 0, a: -452}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
