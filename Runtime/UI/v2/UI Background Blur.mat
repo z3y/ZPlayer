@@ -64,9 +64,9 @@ Material:
     - _TargetAspectRatio: 1.7777777
     - _UseUIAlphaClip: 0
     m_Colors:
-    - _BackgroundColor: {r: 0.5529412, g: 0.5529412, b: 0.5529412, a: 1}
+    - _BackgroundColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0.2}
-    - _CanvasSize: {r: 1920, g: 1080, b: 0, a: -452}
+    - _CanvasSize: {r: 1920, g: 1080, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 75, g: 75, b: 75, a: 75}

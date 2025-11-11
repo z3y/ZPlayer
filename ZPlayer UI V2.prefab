@@ -595,7 +595,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 114.99997}
+  m_AnchoredPosition: {x: 0, y: 135}
   m_SizeDelta: {x: 1115.21, y: 122}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &571709164339836295
@@ -1137,8 +1137,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.3378}
-  m_SizeDelta: {x: 1404.4424, y: 404.5686}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &5287359614890802594
 Canvas:
@@ -1235,8 +1235,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1402.8591, y: 399.14825, z: 10}
-  m_Center: {x: 0, y: -0.80653274, z: 0}
+  m_Size: {x: 1315.21, y: 222, z: 10}
+  m_Center: {x: 0, y: -405, z: 0}
 --- !u!1 &2141861673980618666
 GameObject:
   m_ObjectHideFlags: 0
@@ -1445,7 +1445,9 @@ MonoBehaviour:
   _seekTimeAnimator: {fileID: 7783437007335295796}
   _crt: {fileID: 8600000, guid: 7433f5b12a5e20148b173b4bc333a1e4, type: 2}
   _screenRect: {fileID: 1043337833332186458}
-  _screenBlurMat: {fileID: 2100000, guid: 9206d0a6efac67e47a297bfe39b54b78, type: 2}
+  _screenBlurMat: {fileID: 2100000, guid: c2cad7d0884c25b4288a81c89bb63777, type: 2}
+  _canvasCollider: {fileID: 627946474031782877}
+  _controlsRect: {fileID: 5308396139303147918}
   _seekTimeDurationPreview: {fileID: 7483514448582963976}
   _3dAudioText: {fileID: 0}
   _resolutionText: {fileID: 463005912403382593}
@@ -3360,7 +3362,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 541.5489}
+  m_AnchoredPosition: {x: 0, y: 540}
   m_SizeDelta: {x: 1920, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7225926116566876844

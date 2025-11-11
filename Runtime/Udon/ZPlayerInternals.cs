@@ -89,6 +89,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] CustomRenderTexture _crt;
     [SerializeField] RectTransform _screenRect;
     [SerializeField] Material _screenBlurMat;
+    [SerializeField] BoxCollider _canvasCollider;
+    [SerializeField] RectTransform _controlsRect;
 
     void Start()
     {
@@ -632,9 +634,15 @@ public class ZPlayerInternals : UdonSharpBehaviour
             size.x = canvasSize.x;
             size.y = canvasSize.y;
             _screenRect.sizeDelta = size;
+            // _canvasRect.sizeDelta = size;
+            float half = canvasSize.y / 2;
+            _screenRect.ForceUpdateRectTransforms();
+            _canvasCollider.center = new Vector3(0, (-half) + _controlsRect.anchoredPosition.y, 0);
+            _canvasCollider.size = new Vector3(_controlsRect.sizeDelta.x + 200, _controlsRect.sizeDelta.y + 100, 0.01f);
             var canvas = _screenBlurMat.GetVector("_CanvasSize");
             canvas.x = canvasSize.x;
-            // canvas.y = canvasSize.y;
+            canvas.y = canvasSize.y;
+
             _screenBlurMat.SetVector("_CanvasSize", canvas);
         }
 
