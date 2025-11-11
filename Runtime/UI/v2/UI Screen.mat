@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: UI Screen
-  m_Shader: {fileID: 4800000, guid: 4edbc11253bef8d4bab896efc38828aa, type: 3}
+  m_Shader: {fileID: 4800000, guid: 106b9c8b97f1a284cb2ca34781b72881, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -64,16 +64,18 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VideoTex:
-        m_Texture: {fileID: 2800000, guid: 2d1ae39c4676a444591ca10832e9281b, type: 3}
+        m_Texture: {fileID: 8600000, guid: 7433f5b12a5e20148b173b4bc333a1e4, type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints:
+    - _AlphaPremultiplied: 0
     - _BlurMip: 0
     - _BorderEnabled: 1
     - _EdgeAA: 1
     - _Glass: 0
     - _GlassBlur: 0
     - _MSDF: 0
+    - _ShadowEnabled: 0
     - _SuperSampling: 1
     m_Floats:
     - _Border: 0
@@ -92,6 +94,8 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ShadowBlur: 5
+    - _ShadowSpread: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -112,4 +116,5 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 75, g: 75, b: 75, a: 75}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_BuildTextureStacks: []

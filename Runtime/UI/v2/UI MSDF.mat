@@ -42,6 +42,7 @@ Material:
     - _GlassBlur: 0
     - _MSDF: 1
     - _PositionAsUV1: 0
+    - _ShadowEnabled: 0
     - _SuperSampling: 1
     m_Floats:
     - _Border: 0
@@ -51,6 +52,9 @@ Material:
     - _GlassThickness: 20
     - _IOR: 1.1
     - _Outline: 0
+    - _Shadow: 5
+    - _ShadowBlur: 5
+    - _ShadowSpread: 0
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -65,5 +69,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 0, g: 0, b: 0, a: 0}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
     - _UVPadding: {r: 24.85, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

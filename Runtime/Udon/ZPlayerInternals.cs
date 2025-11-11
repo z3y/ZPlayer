@@ -6,6 +6,7 @@ using UdonSharp;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDK3.Components;
+using VRC.SDK3.Persistence;
 using VRC.SDK3.Video.Components;
 using VRC.SDK3.Video.Components.AVPro;
 using VRC.SDK3.Video.Components.Base;
@@ -40,6 +41,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     [SerializeField] TextMeshProUGUI _volumeText;
 
     [SerializeField] AudioSource _audioSource;
+    [SerializeField] AudioSource[] _audioSource3D;
 
     [SerializeField] GameObject _screenObject;
     [SerializeField] Animator _uiAnimator;
@@ -54,8 +56,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
     public TextMeshProUGUI _avpText;
     public Image _ppImage;
 
-    [SerializeField] CustomRenderTexture _crt;
     [SerializeField] MeshRenderer _copyScreen;
+    internal float _startTime = -1;
 
     bool _isAvProLocal;
     bool _isAvProStarting;
@@ -84,6 +86,9 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
     int _retryCount = 0;
 
+    [SerializeField] CustomRenderTexture _crt;
+    [SerializeField] RectTransform _screenRect;
+    [SerializeField] Material _screenBlurMat;
 
     void Start()
     {
@@ -98,6 +103,10 @@ public class ZPlayerInternals : UdonSharpBehaviour
         UpdateOwnerText();
 
         SendCustomEventDelayedFrames(nameof(_InitLtcToggle), 1);
+
+        // Set3DAudioState(_isAudio3D);
+
+        UpdateCRTResolution();
     }
 
     void Log(string text) => Debug.Log($"[ZPlayer] {text}");
@@ -372,7 +381,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
         var result = ((int)time.TotalHours).ToString("D2") + time.ToString(@"\:mm\:ss");
         if (result.StartsWith("00:"))
         {
-            result = result.Substring(3, result.Length-3);
+            result = result.Substring(3, result.Length - 3);
         }
         return result;
     }
@@ -393,7 +402,42 @@ public class ZPlayerInternals : UdonSharpBehaviour
         float volume = GetLogVolume();
         _audioSource.volume = volume;
 
+        for (int i = 0; i < _audioSource3D.Length; i++)
+        {
+            _audioSource3D[i].volume = volume;
+        }
+
+        //PlayerData.SetFloat(ZPlayer.volumeKey, _volumeSlider.value);
+
         _volumeText.text = ((int)(_volumeSlider.value * 100.0f)).ToString();
+    }
+
+    bool _isAudio3D = false;
+    [SerializeField] private TextMeshProUGUI _3dAudioText;
+    public void Toggle3DAudio()
+    {
+        _isAudio3D = !_isAudio3D;
+
+        Set3DAudioState(_isAudio3D);
+    }
+
+    public void Set3DAudioState(bool is3D)
+    {
+        _audioSource.enabled = !is3D;
+        for (int i = 0; i < _audioSource3D.Length; i++)
+        {
+            _audioSource3D[i].enabled = is3D;
+        }
+
+        if (is3D)
+        {
+            _3dAudioText.text = "3D";
+        }
+        else
+        {
+            _3dAudioText.text = "2D";
+
+        }
     }
 
     public void DisablePostProcess()
@@ -525,7 +569,6 @@ public class ZPlayerInternals : UdonSharpBehaviour
         _pauseButton.SetActive(isPlaying);
     }
 
-
     void UpdateCopyTexture()
     {
         if (_copyScreen.HasPropertyBlock())
@@ -536,16 +579,65 @@ public class ZPlayerInternals : UdonSharpBehaviour
             if (texture != null)
             {
                 _copyScreen.sharedMaterial.SetTexture("_MainTex", texture);
-                if (_crt.height != texture.height || _crt.width != texture.width)
-                {
-                    /*_crt.Release();
-                    _crt.height = texture.height;
-                    _crt.width = texture.width;
-                    _crt.Create();*/
-                }
 
             }
         }
+
+    }
+
+    Vector2 ScaleToFit(Vector2 rectSize, Vector2 containerSize)
+    {
+        float rectAspect = rectSize.x / rectSize.y;
+        float containerAspect = containerSize.x / containerSize.y;
+
+        if (rectAspect > containerAspect)
+        {
+            // Wider than container: fit by width
+            float scale = containerSize.x / rectSize.x;
+            return rectSize * scale;
+        }
+        else
+        {
+            // Taller (or same aspect): fit by height
+            float scale = containerSize.y / rectSize.y;
+            return rectSize * scale;
+        }
+    }
+
+    [SerializeField] TMP_Text _resolutionText;
+    void UpdateCRTResolution()
+    {
+        // avoid resampling
+        int w = _avproPlayer.VideoWidth;
+        int h = _avproPlayer.VideoHeight;
+
+        w = Mathf.Max(w, 16);
+        h = Mathf.Max(h, 9);
+
+        if (_crt.height != h || _crt.width != w)
+        {
+            _crt.Release();
+            _crt.height = (int)h;
+            _crt.width = (int)w;
+            _crt.Create();
+            Debug.Log($"[ZPlayer] Resized CRT w:{_crt.width}, h:{_crt.height}");
+            VRCShader.SetGlobalTexture(VRCShader.PropertyToID("_UdonVideoTex"), _crt);
+
+            _resolutionText.text = $"{w}\n{h}";
+
+            Vector2 canvasMax = new Vector2(1920, 1080);
+            var canvasSize = ScaleToFit(new Vector2(w, h), canvasMax);
+
+            var size = _screenRect.sizeDelta;
+            size.x = canvasSize.x;
+            size.y = canvasSize.y;
+            _screenRect.sizeDelta = size;
+            var canvas = _screenBlurMat.GetVector("_CanvasSize");
+            canvas.x = canvasSize.x;
+            // canvas.y = canvasSize.y;
+            _screenBlurMat.SetVector("_CanvasSize", canvas);
+        }
+
 
     }
 
@@ -563,6 +655,7 @@ public class ZPlayerInternals : UdonSharpBehaviour
     {
         _copyMaterial.SetFloat("_IsAVProInput", _isAvProLocal ? 1 : 0);
         _copyMaterial.SetVector("_Resolution", new Vector2(videoPlayer.VideoWidth, videoPlayer.VideoHeight));
+        UpdateCRTResolution();
     }
 
 
@@ -659,6 +752,11 @@ public class ZPlayerInternals : UdonSharpBehaviour
 
         SendCustomEventDelayedFrames(nameof(UpdateSharedMaterial), 1);
 
+        if (_startTime > 0)
+        {
+            Seek(_startTime);
+            _startTime = -1;
+        }
         if (ownerProgress > 0)
         {
             float time = OwnerTimeOffset();
@@ -760,12 +858,12 @@ public class ZPlayerInternals : UdonSharpBehaviour
     /// <summary>
     /// Never seems to get called
     /// </summary>
-    public override void OnVideoPlay() {}
+    public override void OnVideoPlay() { }
 
     /// <summary>
     /// Never seems to get called
     /// </summary>
-    public override void OnVideoPause() {}
+    public override void OnVideoPause() { }
 
     /// <summary>
     /// Manually called when the player pauses

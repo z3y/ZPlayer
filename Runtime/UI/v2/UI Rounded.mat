@@ -13,6 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _GLASS
+  - _SHADOW
   m_InvalidKeywords:
   - _SUPERSAMPLE
   m_LightmapFlags: 4
@@ -42,6 +43,7 @@ Material:
     - _GlassBlur: 0
     - _MSDF: 0
     - _PositionAsUV1: 0
+    - _ShadowEnabled: 1
     - _SuperSampling: 1
     m_Floats:
     - _Border: 2
@@ -51,6 +53,9 @@ Material:
     - _GlassThickness: 37.5
     - _IOR: 1.04
     - _Outline: 0
+    - _Shadow: 10
+    - _ShadowBlur: 10
+    - _ShadowSpread: 0
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -65,5 +70,6 @@ Material:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 75, g: 75, b: 75, a: 75}
+    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.29803923}
     - _UVPadding: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
