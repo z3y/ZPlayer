@@ -4842,7 +4842,7 @@ GameObject:
   - component: {fileID: 1996913598551880990}
   - component: {fileID: 7319720490636257448}
   m_Layer: 0
-  m_Name: ZPlayer UI V2
+  m_Name: ZPlayer UI+
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

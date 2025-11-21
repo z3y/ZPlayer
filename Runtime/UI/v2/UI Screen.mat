@@ -75,6 +75,7 @@ Material:
     - _Glass: 0
     - _GlassBlur: 0
     - _MSDF: 0
+    - _MipBias: -1
     - _ShadowEnabled: 0
     - _SuperSampling: 1
     m_Floats:
@@ -91,6 +92,7 @@ Material:
     - _GlossyReflections: 1
     - _IOR: 1.1
     - _Metallic: 0
+    - _MipBias: -62.63
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02

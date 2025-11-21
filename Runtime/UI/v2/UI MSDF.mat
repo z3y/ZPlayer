@@ -19,13 +19,21 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    folder_Border: 1
+    folder_Glass: 1
+    folder_Gradient: 0
+    folder_Shadow: 0
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
     - _Background:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Gradient:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -37,20 +45,33 @@ Material:
     - _AlphaPremultiplied: 0
     - _BlurMip: 0
     - _BorderEnabled: 0
+    - _BorderTintVertexColor: 0
+    - _DisableImageTint: 0
     - _EdgeAA: 0
     - _Glass: 0
     - _GlassBlur: 0
+    - _GradientEnabled: 0
+    - _InvertCorners: 0
     - _MSDF: 1
     - _PositionAsUV1: 0
     - _ShadowEnabled: 0
+    - _ShadowTintVertexColor: 0
     - _SuperSampling: 1
     m_Floats:
     - _Border: 0
+    - _BorderAAOffset: 0
     - _BorderWitdh: 0
     - _ColorMask: 15
     - _GlassBlend: 0
     - _GlassThickness: 20
+    - _GradientApplyToBorder: 0
+    - _GradientApplyToImage: 1
+    - _GradientApplyToShadow: 0
+    - _GradientMode: 0
+    - _GradientRotation: 0
+    - _GradientSpeed: 0
     - _IOR: 1.1
+    - _MipBias: -1
     - _Outline: 0
     - _Shadow: 5
     - _ShadowBlur: 5
@@ -65,8 +86,9 @@ Material:
     m_Colors:
     - _BackgroundColor: {r: 1, g: 1, b: 1, a: 1}
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0.2}
-    - _CanvasSize: {r: 1000, g: 1000, b: 0, a: 0}
+    - _CanvasSize: {r: 1920, g: 1080, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _GradientRadialCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 0, g: 0, b: 0, a: 0}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
