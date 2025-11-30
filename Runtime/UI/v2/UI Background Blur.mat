@@ -22,6 +22,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap:
     folder_Border: 1
+    folder_Glass: 1
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -41,13 +42,16 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints:
     - _AlphaPremultiplied: 0
+    - _ApplyFog: 0
     - _BlurMip: 3
     - _BorderEnabled: 1
     - _BorderTintVertexColor: 0
+    - _Cull: 0
     - _DisableImageTint: 0
     - _EdgeAA: 1
     - _Glass: 1
     - _GlassBlur: 1
+    - _GlassRotateHightlight: 1
     - _GradientEnabled: 0
     - _InvertCorners: 0
     - _MSDF: 0
@@ -56,8 +60,10 @@ Material:
     - _ShadowTintVertexColor: 0
     - _SuperSampling: 1
     m_Floats:
+    - _BackgroundDepth: -0.0025
     - _Border: 2
     - _BorderAAOffset: 0
+    - _BorderBlur: 0
     - _BorderWitdh: 0
     - _ColorMask: 15
     - _GlassBlend: 0
@@ -73,7 +79,9 @@ Material:
     - _Outline: 0
     - _Shadow: 50
     - _ShadowBlur: 100
+    - _ShadowFill: 1
     - _ShadowSpread: 0
+    - _SpriteDepth: 0
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -83,9 +91,10 @@ Material:
     - _UseUIAlphaClip: 0
     m_Colors:
     - _BackgroundColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-    - _BorderColor: {r: 1, g: 1, b: 1, a: 0.2}
+    - _BorderColor: {r: 1, g: 1, b: 1, a: 0.5019608}
     - _CanvasSize: {r: 1920, g: 1080, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _GlassBorderGradient: {r: 0.000000014901161, g: 1, b: 0, a: 0}
     - _GradientRadialCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 75, g: 75, b: 75, a: 75}

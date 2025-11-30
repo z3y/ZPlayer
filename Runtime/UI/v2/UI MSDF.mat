@@ -23,6 +23,8 @@ Material:
     folder_Border: 1
     folder_Glass: 1
     folder_Gradient: 0
+    folder_Image: 1
+    folder_Rendering: 1
     folder_Shadow: 0
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -46,10 +48,12 @@ Material:
     - _BlurMip: 0
     - _BorderEnabled: 0
     - _BorderTintVertexColor: 0
+    - _Conservative: 0
     - _DisableImageTint: 0
     - _EdgeAA: 0
     - _Glass: 0
     - _GlassBlur: 0
+    - _GlassRotateHightlight: 1
     - _GradientEnabled: 0
     - _InvertCorners: 0
     - _MSDF: 1
@@ -60,6 +64,7 @@ Material:
     m_Floats:
     - _Border: 0
     - _BorderAAOffset: 0
+    - _BorderBlur: 0
     - _BorderWitdh: 0
     - _ColorMask: 15
     - _GlassBlend: 0
@@ -75,7 +80,9 @@ Material:
     - _Outline: 0
     - _Shadow: 5
     - _ShadowBlur: 5
+    - _ShadowFill: 1
     - _ShadowSpread: 0
+    - _SpriteDepth: 0
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -88,6 +95,7 @@ Material:
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0.2}
     - _CanvasSize: {r: 1920, g: 1080, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _GlassBorderGradient: {r: 0, g: 1, b: 0, a: 0}
     - _GradientRadialCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 0, g: 0, b: 0, a: 0}

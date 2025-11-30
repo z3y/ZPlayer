@@ -48,6 +48,7 @@ Material:
     - _EdgeAA: 1
     - _Glass: 1
     - _GlassBlur: 0
+    - _GlassRotateHightlight: 1
     - _GradientEnabled: 0
     - _InvertCorners: 0
     - _MSDF: 0
@@ -58,6 +59,7 @@ Material:
     m_Floats:
     - _Border: 2
     - _BorderAAOffset: 0
+    - _BorderBlur: 0
     - _BorderWitdh: 0
     - _ColorMask: 15
     - _GlassBlend: 1
@@ -73,7 +75,9 @@ Material:
     - _Outline: 0
     - _Shadow: 10
     - _ShadowBlur: 10
+    - _ShadowFill: 1
     - _ShadowSpread: 0
+    - _SpriteDepth: 0
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -86,6 +90,7 @@ Material:
     - _BorderColor: {r: 1, g: 1, b: 1, a: 0.2}
     - _CanvasSize: {r: 1920, g: 1080, b: 0, a: -452}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _GlassBorderGradient: {r: 0, g: 1, b: 0, a: 0}
     - _GradientRadialCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
     - _Radius: {r: 75, g: 75, b: 75, a: 75}

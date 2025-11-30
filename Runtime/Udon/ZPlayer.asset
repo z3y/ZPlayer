@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ZPlayer
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 6e0f046c29397164494f91332341df12, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 6a37787aea09abc4e8ac4fe490b1915f,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 6f0e574ff767c5c4c8177d98c6d08f56, type: 3}

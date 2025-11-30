@@ -77,6 +77,7 @@ Material:
     - _DisableImageTint: 0
     - _Glass: 0
     - _GlassBlur: 0
+    - _GlassRotateHightlight: 1
     - _GradientEnabled: 0
     - _InvertCorners: 0
     - _MSDF: 0
@@ -86,6 +87,7 @@ Material:
     m_Floats:
     - _Border: 0
     - _BorderAAOffset: 0
+    - _BorderBlur: 0
     - _BumpScale: 1
     - _ColorMask: 15
     - _Cutoff: 0.5
@@ -109,9 +111,11 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _ShadowBlur: 5
+    - _ShadowFill: 1
     - _ShadowSpread: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _SpriteDepth: 0
     - _SrcBlend: 1
     - _Stencil: 0
     - _StencilComp: 8
@@ -127,6 +131,7 @@ Material:
     - _CanvasSize: {r: 1000, g: 1000, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _GlassBorderGradient: {r: 0, g: 1, b: 0, a: 0}
     - _GradientRadialCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _Radius: {r: 0, g: 0, b: 0, a: 0}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 0.5}
