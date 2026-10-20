@@ -222,6 +222,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
             else
             {
                 videoPlayer.Play();
+                TogglePlayPauseButtons(true);
+                AllowHideUI();
             }
         }
 
@@ -484,6 +486,8 @@ public class ZPlayerInternals : UdonSharpBehaviour
         }
 
         videoPlayer.Play();
+        TogglePlayPauseButtons(true);
+        AllowHideUI();
 
         ownerPlaying = true;
         ownerProgress = videoPlayer.GetTime();
